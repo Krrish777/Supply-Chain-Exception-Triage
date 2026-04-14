@@ -89,7 +89,7 @@ uv run pytest tests/unit/                # run one suite
 uv run pytest -m "not integration"       # skip integration
 uv run ruff check . && uv run ruff format .
 uv run mypy src
-adk web .                                # interactive agent playground (once agents exist)
+adk web src/supply_chain_triage/modules/triage/agents   # interactive agent playground
 adk eval <agent_dir> <evalset>           # run evalsets
 firebase emulators:start --only firestore,auth   # local emulators
 ```
