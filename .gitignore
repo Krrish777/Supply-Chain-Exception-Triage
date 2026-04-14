@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.python-version-local
+
+# Env / secrets
+.env
+.env.local
+firebase-service-account*.json
+*.pem
+*.key
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Test / coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# uv
+# uv.lock IS committed
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
