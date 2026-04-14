@@ -32,10 +32,23 @@ src/supply_chain_triage/
 tests/
 ├── unit/          — fast, no external services, no I/O
 ├── integration/   — hits emulators (Firestore, Firebase Auth); marker: @pytest.mark.integration
-└── e2e/           — full FastAPI + ADK + emulator stack (Tier 3 onwards)
+├── e2e/           — full FastAPI + ADK + emulator stack (Tier 3 onwards)
+└── fixtures/      — fake clients (FakeGemini, FakeFirestore, FakeSupermemory); reusable across test tiers
 
 evals/             — ADK evalsets for `adk eval`. NOT a pytest dir. Organized per-agent.
 docs/sessions/     — session notes
+
+scripts/           — shell + python automation (setup, bootstrap, seed, deploy, claim seeding)
+├── *.sh           — bash scripts (setup.sh, gcp_bootstrap.sh, deploy.sh)
+├── *.py           — python scripts (seed_firestore.py, set_custom_claims.py)
+└── seed/          — seed data JSONs (festival_calendar, monsoon_regions, shipments, etc.)
+
+infra/             — infrastructure config (non-code)
+├── firestore.rules          — Firestore security rules (multi-tenant)
+└── firestore.indexes.json   — required composite indexes
+
+firebase.json      — Firebase CLI config (emulators + deploy targets)
+.secrets.baseline  — detect-secrets baseline (committed, regenerated via pre-commit)
 ```
 
 ## Placement table
@@ -55,8 +68,16 @@ docs/sessions/     — session notes
 | Cross-module config/settings | `core/` |
 | Generic helper (no ADK/Firestore) | `utils/` |
 | Test (pytest) | `tests/{unit,integration,e2e}/` |
+| Test fixture / fake client | `tests/fixtures/` |
 | Evalset (adk eval) | `evals/<agent_name>/` |
 | Session notes | `docs/sessions/YYYY-MM-DD-<slug>.md` |
+| Research doc / vault copy / Zettel | `docs/research/` |
+| Bash automation script | `scripts/*.sh` (setup.sh, gcp_bootstrap.sh, deploy.sh) |
+| Python automation script | `scripts/*.py` (seed_firestore.py, set_custom_claims.py) |
+| Seed data (JSON) | `scripts/seed/*.json` |
+| Firestore rules / indexes | `infra/firestore.rules`, `infra/firestore.indexes.json` |
+| Firebase CLI config | `firebase.json` (repo root) |
+| detect-secrets baseline | `.secrets.baseline` (repo root) |
 
 ## Enforcement
 
