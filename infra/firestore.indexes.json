@@ -1,0 +1,83 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "shipments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "company_id", "order": "ASCENDING"},
+        {"fieldPath": "vehicle_id", "order": "ASCENDING"},
+        {"fieldPath": "status", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "shipments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "company_id", "order": "ASCENDING"},
+        {"fieldPath": "route_id", "order": "ASCENDING"},
+        {"fieldPath": "status", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "shipments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "company_id", "order": "ASCENDING"},
+        {"fieldPath": "region", "order": "ASCENDING"},
+        {"fieldPath": "status", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "shipments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "company_id", "order": "ASCENDING"},
+        {"fieldPath": "customer_id", "order": "ASCENDING"},
+        {"fieldPath": "status", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "shipments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "company_id", "order": "ASCENDING"},
+        {"fieldPath": "status", "order": "ASCENDING"},
+        {"fieldPath": "deadline", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "exceptions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "company_id", "order": "ASCENDING"},
+        {"fieldPath": "created_at", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "exceptions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "company_id", "order": "ASCENDING"},
+        {"fieldPath": "user_id", "order": "ASCENDING"},
+        {"fieldPath": "created_at", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "exceptions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "company_id", "order": "ASCENDING"},
+        {"fieldPath": "classification.exception_type", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "exceptions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "company_id", "order": "ASCENDING"},
+        {"fieldPath": "classification.severity", "order": "ASCENDING"}
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

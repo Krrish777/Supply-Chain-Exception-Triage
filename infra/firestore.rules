@@ -1,0 +1,84 @@
+rules_version = '2';
+
+// Multi-tenant Firestore rules for Supply Chain Exception Triage.
+// Authoritative source: docs/research/Supply-Chain-Firestore-Schema-Tier1.md §385-441.
+// Companion: docs/research/zettel-firestore-multi-tenant.md.
+//
+// Anchor: every non-static document carries a top-level `company_id` field.
+// Every rule checks `request.auth.token.company_id == resource.data.company_id`.
+// The custom claim is set via `scripts/set_custom_claims.py` (Admin SDK) —
+// clients cannot set it, per Firebase's custom-claims security model.
+//
+// Admin SDK bypasses these rules (server-side has full access). Review every
+// Admin SDK write site in docs/sprints/sprint-0/security.md once the OWASP
+// checklist lands.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helpers ---
+
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    function isCompanyMember(cid) {
+      return isAuthed() && request.auth.token.company_id == cid;
+    }
+
+    function incomingIsOwnCompany() {
+      return isAuthed()
+        && request.auth.token.company_id == request.resource.data.company_id;
+    }
+
+    // --- Static reference data (authenticated read only) ---
+
+    match /festival_calendar/{festivalId} {
+      allow read: if isAuthed();
+      allow write: if false;  // Admin SDK only
+    }
+
+    match /monsoon_regions/{regionId} {
+      allow read: if isAuthed();
+      allow write: if false;
+    }
+
+    // --- Tenant data ---
+
+    match /companies/{companyId} {
+      allow read: if isCompanyMember(companyId);
+      allow write: if false;  // Admin SDK only — onboarding flow
+    }
+
+    match /users/{userId} {
+      // Users read their own profile. Admin SDK writes onboarding + claim updates.
+      allow read: if isAuthed() && request.auth.uid == userId;
+      allow write: if false;
+    }
+
+    match /shipments/{shipmentId} {
+      allow read: if isCompanyMember(resource.data.company_id);
+      allow create: if incomingIsOwnCompany();
+      allow update, delete: if isCompanyMember(resource.data.company_id)
+                            && incomingIsOwnCompany();
+    }
+
+    match /customers/{customerId} {
+      allow read: if isCompanyMember(resource.data.company_id);
+      allow create: if incomingIsOwnCompany();
+      allow update, delete: if isCompanyMember(resource.data.company_id)
+                            && incomingIsOwnCompany();
+    }
+
+    match /exceptions/{exceptionId} {
+      // Audit trail. Readable by members; writes are server-side only.
+      allow read: if isCompanyMember(resource.data.company_id);
+      allow write: if false;  // Admin SDK writes the audit record
+    }
+
+    // Explicit deny-all catch-all for any unlisted collection.
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
