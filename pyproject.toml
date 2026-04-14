@@ -11,7 +11,7 @@ license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.13,<3.14"
 authors = [
-  { name = "Krrish", email = "noreply@example.com" },
+  { name = "Krrish", email = "777krrish@gmail.com" },
 ]
 keywords = ["adk", "gemini", "supply-chain", "agents", "firebase"]
 classifiers = [
@@ -44,6 +44,7 @@ dependencies = [
   # --- Utilities ---
   "python-dotenv>=1.0.1",
   "structlog>=24.4.0",                 # Structured JSON logging
+  "rich>=13.9.0",                      # Dev-console handler + rich tracebacks (utils/logging.py)
   "httpx>=0.27.0",
 ]
 
@@ -118,6 +119,7 @@ select = [
   "ERA",           # commented-out code
   "D",             # pydocstyle — scoped via per-file-ignores below
   "DTZ",           # flake8-datetimez — bans datetime.utcnow() and naive datetimes
+  "T20",           # flake8-print — bans print() / pprint() outside scripts (use utils/logging.get_logger)
 ]
 
 # Google-convention docstrings (matches adk-samples style).
@@ -156,9 +158,25 @@ max-locals = 15
 # Manager, Firestore) are constructed. Everything else in core/ stays framework-
 # neutral; this single file bridges. See comments in config.py.
 "src/supply_chain_triage/core/config.py" = ["TID251"]
+# FirebaseAuthMiddleware.dispatch has 7 well-documented error paths (missing
+# creds / expired / invalid / value-error / missing-company-claim / public /
+# success). Each return is clearly labelled; factoring into data tables would
+# hurt readability and the test shape (6 tests × 6 branches).
+"src/supply_chain_triage/middleware/firebase_auth.py" = ["PLR0911"]
+# scripts/ — server-admin tooling (not request-path code). set_custom_claims.py
+# uses firebase_admin to seed custom claims on test users; seed_firestore.py may
+# use google.cloud.firestore in Sprint 2 for seeding. Allowed for admin-only use.
+# Scripts print to stdout for operator feedback — T201/T203 allowed here only.
+# See .claude/rules/imports.md §"scripts/ allowlist".
+"scripts/**" = ["TID251", "T201", "T203"]
+# utils/logging.py is the ONE place where structlog + rich + stdlib logging are
+# configured. T201 forbidden everywhere else (forces use of get_logger).
+"src/supply_chain_triage/utils/logging.py" = ["TID251"]
 # Tests — assert, fake creds, magic values, unused args, banned imports (for
-# mocking), no docstrings, and Given/When/Then comments (ERA001 misreads them).
-"tests/**" = ["S101", "S105", "S106", "PLR2004", "ARG", "TID251", "D", "ERA001"]
+# mocking), no docstrings, Given/When/Then comments (ERA001), en-dashes in
+# docstrings (RUF002 — we write "3.1–3.3" style test-plan references), and
+# in-body imports needed for monkeypatched env reloads (PLC0415).
+"tests/**" = ["S101", "S105", "S106", "PLR2004", "ARG", "TID251", "D", "ERA001", "RUF002", "PLC0415"]
 # Evalsets — assert allowed, docstrings not required.
 "evals/**" = ["S101", "D"]
 # __init__ — re-exports, no module-level docstring required.
@@ -200,30 +218,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
-
-# --- pytest ---
-[tool.pytest.ini_options]
-minversion = "7.3.2"
-asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "session"   # session-scoped async fixtures under auto mode
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = [
-  "-ra",
-  "--strict-markers",
-  "--strict-config",
-  "--cov=src/supply_chain_triage",
-  "--cov-report=term-missing",
-  "--cov-report=xml",
-  # Coverage is advisory through Tier 1 (Apr 24). Harden to a real threshold
-  # (e.g. --cov-fail-under=90 on pure-logic) starting Tier 2.
-]
-markers = [
-  "integration: marks tests requiring external services (emulator, Gemini)",
-  "slow: slow tests (>2s)",
-]
 
 # --- coverage ---
 # Scoped to pure-logic paths. Agents are validated by evalsets, not coverage.
