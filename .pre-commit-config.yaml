@@ -1,4 +1,5 @@
-# Hook order: fast hygiene → lint (ruff) → format (ruff-format) → type (mypy) → security (gitleaks).
+# Hook order: fast hygiene → lint (ruff) → format (ruff-format) → type (mypy)
+#              → import-linter → interrogate → file-size → security (gitleaks)
 # Lint runs before format because ruff --fix can change formatting.
 # Rules live in `.claude/rules/` and `pyproject.toml`; this file enforces at commit time.
 
@@ -34,6 +35,31 @@ repos:
         types: [python]
         pass_filenames: false
         require_serial: true
+
+      # Application-layer import contracts — see .claude/rules/architecture-layers.md.
+      - id: lint-imports
+        name: import-linter (layer contracts)
+        entry: uv run lint-imports
+        language: system
+        types: [python]
+        pass_filenames: false
+        require_serial: true
+
+      # Docstring coverage gate on boundary folders — see .claude/rules/code-quality.md §3.
+      - id: interrogate
+        name: interrogate (boundary docstring coverage ≥80%)
+        entry: uv run interrogate -c pyproject.toml src/supply_chain_triage/runners src/supply_chain_triage/middleware src/supply_chain_triage/modules
+        language: system
+        types_or: [python]
+        pass_filenames: false
+        require_serial: true
+
+      # Per-path file-size caps — see .claude/rules/code-quality.md §1.
+      - id: file-size
+        name: file-size (per-path line caps)
+        entry: python .claude/hooks/check_file_size.py
+        language: system
+        files: '^(src|tests|docs)/.+\.(py|md)$'
 
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.21.2
