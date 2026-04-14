@@ -1,0 +1,22 @@
+[pytest]
+minversion = "9.0"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"   # session-scoped async fixtures under auto mode
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+  "-ra",
+  "--strict-markers",
+  "--strict-config",
+  "--cov=src/supply_chain_triage",
+  "--cov-report=term-missing",
+  "--cov-report=xml",
+  # Coverage is advisory through Tier 1 (Apr 24). Harden to a real threshold
+  # (e.g. --cov-fail-under=90 on pure-logic) starting Tier 2.
+]
+markers = [
+  "integration: marks tests requiring external services (emulator, Gemini)",
+  "slow: slow tests (>2s)",
+]
