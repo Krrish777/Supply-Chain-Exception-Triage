@@ -61,6 +61,9 @@ dev = [
   "mypy>=1.13.0",
   "pre-commit>=4.0.0",
   "types-requests",
+  # --- Path B enforcement (layer + docstring coverage) ---
+  "import-linter>=2.0",                # Layer + forbidden-import contracts in pyproject.toml
+  "interrogate>=1.7",                  # Docstring coverage gate on boundary folders
 ]
 
 security = [
@@ -104,16 +107,28 @@ select = [
   "RUF",           # ruff-specific
   "PT",            # pytest style
   "TID",           # tidy-imports (enables banned-api below)
-  "PL",            # pylint subset
+  "PL",            # pylint subset (thresholds in [tool.ruff.lint.pylint])
   "N",             # pep8-naming
   "ARG",           # unused args
   "PTH",           # pathlib over os.path
   "TCH",           # TYPE_CHECKING guards
   "ERA",           # commented-out code
+  "D",             # pydocstyle — scoped via per-file-ignores below
 ]
-ignore = [
-  "S101",          # Allow `assert` in tests
-]
+
+# Google-convention docstrings (matches adk-samples style).
+# This auto-resolves D203/D211 and D212/D213 conflicts.
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+# Research-default thresholds for function-shape rules (PLR09**).
+# Encodes the "no god functions" rule from .claude/rules/code-quality.md.
+[tool.ruff.lint.pylint]
+max-args = 5
+max-branches = 12
+max-statements = 50
+max-returns = 6
+max-locals = 15
 
 # Import bans — encode the rules in .claude/rules/imports.md as lint errors.
 # Modules listed here are forbidden project-wide except where explicitly
@@ -130,12 +145,23 @@ ignore = [
 "src/supply_chain_triage/**/memory/**" = ["TID251"]
 "src/supply_chain_triage/**/tools/**" = ["TID251"]
 "src/supply_chain_triage/middleware/**" = ["TID251"]
-# Tests — assert, fake creds, magic values, unused args, banned imports (for mocking).
-"tests/**" = ["S101", "S105", "S106", "PLR2004", "ARG", "TID251"]
-# Evalsets — assert allowed.
-"evals/**" = ["S101"]
-# __init__ — re-exports.
-"**/__init__.py" = ["E402", "F401"]
+# Tests — assert, fake creds, magic values, unused args, banned imports (for mocking), no docstrings.
+"tests/**" = ["S101", "S105", "S106", "PLR2004", "ARG", "TID251", "D"]
+# Evalsets — assert allowed, docstrings not required.
+"evals/**" = ["S101", "D"]
+# __init__ — re-exports, no module-level docstring required.
+"**/__init__.py" = ["E402", "F401", "D"]
+# Utils — internal helpers, self-documenting names; docstrings encouraged, not required.
+"src/supply_chain_triage/utils/**" = ["D"]
+# Schemas — pure Pydantic models; field descriptions serve the purpose.
+"**/schemas.py" = ["D"]
+# Core — configuration/settings; D2**/D4** style rules still apply, D1** missing-docstring silenced.
+"src/supply_chain_triage/core/**" = ["D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107"]
+# Claude hooks — infrastructure scripts, not project code; the module docstring already explains.
+".claude/**/*.py" = ["D100", "D103", "D104"]
+# CLI entry-points are tiny stubs; D2**/D4** still apply.
+"main.py" = ["D100", "D103"]
+"src/supply_chain_triage/main.py" = ["D100", "D103"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -216,3 +242,78 @@ exclude_lines = [
 [tool.bandit]
 exclude_dirs = ["tests", ".venv", ".git"]
 skips = ["B101"]                       # Allow assert
+
+# --- import-linter ---
+# Application-layer contracts. Documented in .claude/rules/architecture-layers.md.
+# Run via `uv run lint-imports`.
+[tool.importlinter]
+root_package = "supply_chain_triage"
+
+# Top-level layering: runners -> middleware -> modules -> core -> utils.
+# Higher layers may import lower layers; reverse is forbidden.
+[[tool.importlinter.contracts]]
+name = "Top-level layering"
+type = "layers"
+layers = [
+  "runners",
+  "middleware",
+  "modules",
+  "core",
+  "utils",
+]
+containers = ["supply_chain_triage"]
+
+# Agents call tools, never Firestore/memory directly.
+[[tool.importlinter.contracts]]
+name = "Agents do not import memory directly"
+type = "forbidden"
+source_modules = ["supply_chain_triage.modules.*.agents"]
+forbidden_modules = ["supply_chain_triage.modules.*.memory"]
+
+# Tools must not import agents (prevents cycles, keeps tools reusable).
+[[tool.importlinter.contracts]]
+name = "Tools do not import agents"
+type = "forbidden"
+source_modules = ["supply_chain_triage.modules.*.tools"]
+forbidden_modules = ["supply_chain_triage.modules.*.agents"]
+
+# Memory is terminal — it does not call back up into agents/tools/runners/middleware.
+[[tool.importlinter.contracts]]
+name = "Memory is terminal"
+type = "forbidden"
+source_modules = ["supply_chain_triage.modules.*.memory"]
+forbidden_modules = [
+  "supply_chain_triage.modules.*.agents",
+  "supply_chain_triage.modules.*.tools",
+  "supply_chain_triage.runners",
+  "supply_chain_triage.middleware",
+]
+
+# Models and guardrails are pure — no upward imports.
+[[tool.importlinter.contracts]]
+name = "Models and guardrails are terminal"
+type = "forbidden"
+source_modules = [
+  "supply_chain_triage.modules.*.models",
+  "supply_chain_triage.modules.*.guardrails",
+]
+forbidden_modules = [
+  "supply_chain_triage.modules.*.agents",
+  "supply_chain_triage.modules.*.tools",
+  "supply_chain_triage.modules.*.memory",
+  "supply_chain_triage.runners",
+  "supply_chain_triage.middleware",
+]
+
+# --- interrogate (docstring coverage gate) ---
+# Scope is narrowed in pre-commit + CI invocations to boundary folders only.
+# Docstring *style* is enforced by ruff D rules — see per-file-ignores above.
+[tool.interrogate]
+fail-under = 80
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = true
+ignore-private = true
+ignore-nested-functions = true
+exclude = ["tests", "evals", "docs", ".venv"]
+verbose = 1
