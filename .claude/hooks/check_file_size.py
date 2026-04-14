@@ -30,6 +30,10 @@ LIMITS: tuple[tuple[str, int], ...] = (
     ("src/supply_chain_triage/runners/**/*.py", 200),
     ("src/supply_chain_triage/middleware/**/*.py", 150),
     ("src/supply_chain_triage/core/**/*.py", 150),
+    # Canonical logging entry point — architecture-layers.md §2 narrow exception.
+    # Intentionally the single home for processors + handlers + helpers. Higher
+    # cap than the rest of utils/ because splitting fragments the one-file intent.
+    ("src/supply_chain_triage/utils/logging.py", 500),
     ("src/supply_chain_triage/utils/**/*.py", 200),
     # Catch-all for any other project Python / markdown.
     ("src/**/*.py", 300),

@@ -19,6 +19,8 @@ Calibrated to this project's shape (ADK multi-agent, not FastAPI CRUD). These ar
 | `modules/<mod>/memory/*.py` | ~200 lines | One adapter concern per file |
 | `runners/routes/*.py` | ~200 lines | Split into subpackage (one file per resource) |
 | `middleware/*.py` | ~150 lines | One middleware concern per file |
+| `utils/logging.py` | ~500 lines | Narrow exception — the canonical logging entry point (see `architecture-layers.md` §2). One file by design; splitting fragments the processor/handler/helper chain |
+| `utils/*.py` (other) | ~200 lines | Pure helpers — extract concerns into separate files |
 | Any function | ~40 lines | Extract helpers |
 
 A well-structured 210-line file is better than a poorly-structured 50-line one — but both run past 500 is a smell. File length is enforced by `.claude/hooks/check_file_size.py` via pre-commit; function-level complexity is enforced by ruff (`C901`, `PLR0915`, `PLR0912`, `PLR0913`, `PLR0911`, `PLR0914`) with research-default thresholds in `pyproject.toml`.
