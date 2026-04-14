@@ -15,7 +15,7 @@ help:
 	@echo "  test-int    — uv run pytest -m integration"
 	@echo "  eval        — adk eval <agent_dir> <evalset>  (reminder)"
 	@echo "  emulators   — firebase emulators:start --only firestore,auth"
-	@echo "  dev         — adk web ."
+	@echo "  dev         — adk web (on modules/triage/agents)"
 	@echo "  pre-commit  — uv run pre-commit run --all-files"
 	@echo "  check       — sync lint type test"
 
@@ -49,7 +49,7 @@ emulators:
 	firebase emulators:start --only firestore,auth
 
 dev:
-	adk web .
+	adk web src/supply_chain_triage/modules/triage/agents
 
 pre-commit:
 	uv run pre-commit run --all-files
