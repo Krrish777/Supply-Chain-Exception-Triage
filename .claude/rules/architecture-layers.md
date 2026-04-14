@@ -35,7 +35,16 @@ utils/                    (bottom — pure helpers, no vendor imports)
 | `modules/*/models/` | `core`, `utils`, stdlib, Pydantic | agents, tools, memory, runners, middleware |
 | `modules/*/guardrails/` | `modules/*/models`, `core`, `utils`, Pydantic | agents, tools, memory, runners, middleware |
 | `core/` | stdlib, Pydantic, pydantic-settings | anything else in project |
-| `utils/` | stdlib only | anything else in project |
+| `utils/` | stdlib only (see exception below) | anything else in project |
+
+**Narrow exception — `utils/logging.py`:** this single file is the canonical
+logging entry point for the whole project and needs external logging infra
+(`structlog`, `rich`, `logging.handlers`). Every other layer imports from it;
+it is the one place where all layers converge. Three pragmatic rules:
+
+1. `utils/logging.py` may import `structlog`, `rich.*`, and `logging.handlers` — no other external deps.
+2. No other file in `utils/` may relax the "stdlib only" rule.
+3. Adding a new external dep to `utils/logging.py` (e.g. OTel SDK) requires a new ADR and an update here.
 
 Keep in mind: **`.claude/rules/imports.md`** also bans `google.adk.*` / `firebase_admin` / `google.cloud.firestore` outside their specific allowlist — that's orthogonal to this table.
 

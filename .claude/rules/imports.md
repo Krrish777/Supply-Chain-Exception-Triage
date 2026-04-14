@@ -22,6 +22,9 @@ Import only in:
 - `modules/*/memory/` — Firestore access from memory adapters
 - `modules/*/tools/` — tools that wrap Firestore queries
 - `middleware/` — Firebase Auth token verification
+- `scripts/` — server-admin tooling only (not request-path). `set_custom_claims.py`
+  seeds claims on test users via Admin SDK. Scripts are CLIs operators run by
+  hand; they never import into the runtime app.
 
 ## `google.cloud.firestore`
 
@@ -29,6 +32,9 @@ Import only in:
 - `modules/*/memory/`
 - `modules/*/tools/`
 - `middleware/`
+- `core/config.py` (DI chokepoint only — the `get_firestore_client()` factory)
+- `scripts/` — server-admin tooling only (seed loaders). Same discipline as
+  `firebase_admin` above.
 
 Prefer `google.cloud.firestore.AsyncClient` (not `firebase_admin.firestore.client()` which returns sync).
 

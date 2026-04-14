@@ -239,7 +239,94 @@ if data["tenant_id"] != current_user.tenant_id:
 
 Always **existence (404) before permission (403)** — consistent with `.claude/rules/api-routes.md` §8.
 
-## 9. Anti-patterns
+## 9. Middleware stack ordering (Risk 11 regression guard)
+
+The FastAPI middleware order is **load-bearing** for correctness. Starlette runs middleware in the reverse order it was added — the last `add_middleware` call wraps outermost. Specify the stack once, comment the rationale inline in `main.py create_app()`, and do **not** reorder without a new ADR.
+
+**Canonical order (outermost → innermost):**
+
+1. `TrustedHostMiddleware` — reject requests with unexpected `Host` headers.
+2. `CORSMiddleware` — must run *before* auth so preflight `OPTIONS` requests are answered without credentials.
+3. Firebase Auth (`Depends(get_current_user)` per-route; or `FirebaseAuthMiddleware` if added globally) — populates `request.state.user_uid` for downstream.
+4. Rate-limit (`slowapi`) — uses `request.state.user_uid` for per-uid keying; must run **after** auth.
+5. Audit-log — last, so it sees the authenticated user and the final request outcome.
+6. App routes.
+
+**Required inline comment in `main.py`:**
+
+```python
+def create_app() -> FastAPI:
+    app = FastAPI(lifespan=lifespan)
+    # MIDDLEWARE STACK ORDER — Risk 11 regression guard.
+    # DO NOT reorder without a new ADR. Canonical chain:
+    #   trusted-host → CORS → auth → rate-limit → audit-log → routes
+    # CORS before auth: preflight OPTIONS must not require credentials.
+    # Rate-limit after auth: per-uid keying depends on request.state.user_uid.
+    # Audit last: captures authenticated user + final request outcome.
+    app.add_middleware(AuditLogMiddleware)
+    app.add_middleware(RateLimitMiddleware)
+    app.add_middleware(FirebaseAuthMiddleware)  # or per-route dep
+    app.add_middleware(CORSMiddleware, allow_origins=settings.CORS_ORIGINS, ...)
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.TRUSTED_HOSTS)
+    return app
+```
+
+A test lives in `tests/unit/middleware/test_stack_order.py` that introspects `app.user_middleware` and asserts the order. This is the regression guard for Risk 11.
+
+## 10. Unicode-preserving input sanitization
+
+The project is India-first. User input arrives as English, Hindi (Devanagari), or Hinglish (romanized Hindi mixed with English). Sanitization **must not** scrub non-ASCII content.
+
+**`sanitize_input(text: str) -> str` contract:**
+
+- **Strip:** HTML tags (XSS vector), script / style elements, control characters (C0 `\x00-\x1f` except `\t\n\r`, C1 `\x7f-\x9f`), zero-width joiners used for homograph attacks (`\u200b-\u200f`, `\u202a-\u202e`, `\u2066-\u2069`).
+- **Preserve:** ASCII printable, Latin-1 Supplement, Devanagari (`\u0900-\u097F`), Devanagari Extended (`\uA8E0-\uA8FF`), common emoji, CJK if present. Err on the side of preservation for anything that isn't clearly a control code or HTML tag.
+- **Never:** `.encode('ascii', 'ignore')` — wipes Hindi entirely. Never use a blanket non-ASCII stripper.
+- **Preferred implementation:** `bleach` (allowlist-based HTML strip) + explicit control-char regex pass. Rationale: `bleach` is a well-maintained HTML sanitizer; blanket regex replacements on strings are fragile on multilingual content.
+
+```python
+import bleach, re
+
+_CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f\u200b-\u200f\u202a-\u202e\u2066-\u2069]")
+
+def sanitize_input(text: str) -> str:
+    """Strip HTML/XSS + control chars. Preserves Devanagari, Latin, CJK, emoji."""
+    stripped = bleach.clean(text, tags=[], attributes={}, strip=True)
+    return _CONTROL_CHARS.sub("", stripped)
+```
+
+**Placement:** `src/supply_chain_triage/middleware/input_sanitizer.py`. Called by the request-body middleware before payload hits any route handler.
+
+**Never sanitize on the way out** (response side) — that would double-encode HTML entities returned by legitimate endpoints.
+
+## 11. CORS allowlist — reject wildcards at startup
+
+`settings.CORS_ORIGINS` is a `list[str]` of exact origins loaded via pydantic-settings.
+
+```python
+class Settings(BaseSettings):
+    ENV: Literal["dev", "staging", "prod"]
+    CORS_ORIGINS: list[str]
+
+    @field_validator("CORS_ORIGINS")
+    @classmethod
+    def _no_wildcards(cls, v: list[str], info) -> list[str]:
+        env = info.data.get("ENV")
+        bad = [o for o in v if "*" in o or o == ""]
+        if bad:
+            msg = f"CORS_ORIGINS contains wildcards or empty entries: {bad}"
+            if env in {"staging", "prod"}:
+                raise ValueError(msg)
+            import warnings; warnings.warn(msg)
+        return v
+```
+
+- **Prod / staging:** any `"*"` or empty entry → `ValueError` at startup. Container fails to boot.
+- **Dev:** warns only, to keep localhost iteration friction-free.
+- Exact match against `Origin` header; never regex with `.*`.
+- Every production origin is explicitly listed. Add-don't-loosen — adding a new origin is a settings change + deploy.
+
+## 12. Anti-patterns
 
 ### Firebase + Cloud Run
 
