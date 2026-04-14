@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import json
 import sys
-from fnmatch import fnmatch
 from pathlib import Path, PurePosixPath
 
 ALLOWLIST: tuple[str, ...] = (
@@ -41,12 +40,21 @@ ALLOWLIST: tuple[str, ...] = (
     "tests/unit/**/*.py",
     "tests/integration/**/*.py",
     "tests/e2e/**/*.py",
+    "tests/fixtures/**/*.py",
     "tests/__init__.py",
     "tests/conftest.py",
     # evals
     "evals/*/**",
     # docs
     "docs/**/*.md",
+    # scripts (bash + python automation + seed data)
+    "scripts/*.sh",
+    "scripts/*.py",
+    "scripts/seed/*.json",
+    # infra (non-code Firebase/Firestore config)
+    "infra/firestore.rules",
+    "infra/firestore.indexes.json",
+    "firebase.json",
     # root config + tooling
     "pyproject.toml",
     "uv.lock",
@@ -58,7 +66,10 @@ ALLOWLIST: tuple[str, ...] = (
     ".python-version",
     ".env.template",
     ".env",
+    ".secrets.baseline",
     "README.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
     "LICENSE",
     "CLAUDE.md",
     "firestore.rules",
@@ -71,10 +82,18 @@ ALLOWLIST: tuple[str, ...] = (
 
 
 def is_allowed(rel_path: str) -> bool:
-    """Return True if the normalized relative path matches any allowlist glob."""
-    # Normalize Windows separators to POSIX for fnmatch.
-    p = rel_path.replace("\\", "/").lstrip("./")
-    return any(fnmatch(p, pattern) for pattern in ALLOWLIST)
+    """Return True if the normalized relative path matches any allowlist glob.
+
+    Uses ``PurePosixPath.full_match`` (Python 3.13+) so ``**`` matches
+    zero or more path segments, matching standard glob semantics. ``fnmatch``
+    does NOT support ``**`` recursively.
+
+    Uses ``.removeprefix("./")`` instead of ``.lstrip("./")`` to avoid eating
+    leading dots on dotfiles (``.env``, ``.secrets.baseline``, etc.).
+    """
+    normalized = rel_path.replace("\\", "/").removeprefix("./")
+    p = PurePosixPath(normalized)
+    return any(p.full_match(pattern) for pattern in ALLOWLIST)
 
 
 def extract_paths(tool_name: str, tool_input: dict) -> list[str]:
