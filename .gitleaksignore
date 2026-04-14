@@ -1,0 +1,8 @@
+# gitleaks fingerprint allowlist. One fingerprint per line: <file>:<rule-id>:<line>
+#
+# .secrets.baseline stores SHA1 hashes of previously-reviewed secrets from detect-secrets.
+# gitleaks sees those hashes as high-entropy strings, but they are not secrets themselves.
+.secrets.baseline:generic-api-key:130
+.secrets.baseline:generic-api-key:139
+.secrets.baseline:generic-api-key:148
+.secrets.baseline:generic-api-key:157
