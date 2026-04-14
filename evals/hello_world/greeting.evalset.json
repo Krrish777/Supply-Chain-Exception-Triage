@@ -1,0 +1,31 @@
+{
+  "eval_set_id": "hello_world_greeting",
+  "name": "hello_world_greeting",
+  "description": "Smoke evalset for the Sprint 0 baseline greeter. Confirms that adk eval runs end-to-end against modules.triage.agents.hello_world; the agent is expected to greet warmly and briefly point at the Exception Triage platform. Used by PRD v2 §17 item #17.",
+  "eval_cases": [
+    {
+      "eval_id": "greet_hello",
+      "conversation": [
+        {
+          "user_content": {
+            "parts": [
+              {"text": "hello"}
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {"text": "Hello! I'm the hello_world baseline agent for the Exception Triage platform."}
+            ],
+            "role": "model"
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "supply_chain_triage",
+        "user_id": "sprint0_eval_user",
+        "state": {}
+      }
+    }
+  ]
+}
