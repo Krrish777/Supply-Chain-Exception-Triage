@@ -22,12 +22,12 @@ from pathlib import Path
 
 SEED_DIR = Path(__file__).parent / "seed"
 COLLECTIONS: tuple[str, ...] = (
-    "festival_calendar",   # populated by Sprint 1 (Classifier tool data)
-    "monsoon_regions",     # populated by Sprint 1
-    "shipments",           # populated by Sprint 2 (Impact Agent)
-    "customers",           # populated by Sprint 2
-    "companies",           # populated by Sprint 2
-    "users",               # populated by Sprint 2
+    "festival_calendar",  # populated by Sprint 1 (Classifier tool data)
+    "monsoon_regions",  # populated by Sprint 1
+    "shipments",  # populated by Sprint 2 (Impact Agent)
+    "customers",  # populated by Sprint 2
+    "companies",  # populated by Sprint 2
+    "users",  # populated by Sprint 2
 )
 
 
