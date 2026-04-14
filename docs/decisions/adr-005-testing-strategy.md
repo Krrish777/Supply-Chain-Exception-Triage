@@ -78,6 +78,14 @@ Everything else — schemas, middleware, agents, tools, sanitizers, memory adapt
 - Coverage report published to `docs/sprints/sprint-N/test-report.md` per sprint
 - When a test is hard to write, that's a signal the design is wrong — refactor the design, not the test
 
+## Amendments
+
+### 2026-04-14 — Coverage gating softened for Tier 1
+
+Coverage enforcement is **advisory** through the Tier 1 hackathon boundary (2026-04-24) and **hardens to 90% on pure-logic paths** at the Tier 2 boundary (2026-05-29). Rationale captured in `CLAUDE.md` and `.claude/rules/testing.md` §2 — enforcing 80% on an empty Sprint 0 codebase incentivized tautological tests; the project's quality gate in this window is agent evalsets + test-first discipline, not coverage percentage. Once real business logic lands in Sprint 1-3, hard-gating makes sense. The strict-TDD rule (red → green → refactor) in this ADR is **unchanged** — it is coverage *enforcement via CI* that is softened, not the development discipline.
+
+Operationally: `pyproject.toml` currently runs `--cov-report=term-missing --cov-report=xml` with no `--cov-fail-under`. `[tool.coverage.run] source = [...]` is already narrowed to pure-logic paths (`core/`, `utils/`, `middleware/`, `modules/triage/{models,tools,guardrails,memory}/`) so when the gate hardens, it scopes automatically.
+
 ## References
 
 - [Kent Beck — Test-Driven Development By Example](https://www.oreilly.com/library/view/test-driven-development/0321146530/) (canonical TDD reference)

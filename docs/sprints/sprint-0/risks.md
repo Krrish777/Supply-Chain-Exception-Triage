@@ -202,6 +202,39 @@ sources: ["[[Supply-Chain-Sprint-Plan-Spiral-SDLC]]"]
 
 ---
 
+## Risk 12: Supermemory Container-Tag Multi-Tenant Contract Drift
+
+- **Probability**: Medium
+- **Severity**: High (cross-tenant data leak would be a critical incident if it reached real users)
+- **What happened**: Supermemory scopes memory via "container tags" rather than a first-class tenant primitive (see `docs/research/zettel-supermemory-python-sdk.md`). A single forgotten `container_tags=[company_id]` argument on a `memories.search(...)` call returned Company A's exception history to Company B's Impact Agent prompt. Leak discovered weeks after deploy because the data *looked plausible* — exceptions from a similar-sized 3PL — and nobody caught the cross-tenant ID in manual review.
+- **Mitigation**:
+  - `MemoryProvider` interface (ADR-002) accepts `company_id` as a **required positional arg** on every public method. Forgetting it is a type error, not a silent default.
+  - `SupermemoryAdapter` (the concrete impl) internally constructs `container_tags=[company_id]` — application code never passes raw container tags.
+  - `FakeSupermemoryClient` has the same interface and asserts `company_id` was passed on every call (test coverage for the contract itself).
+  - Integration test: multi-tenant regression — write memory for `company_A`, search with `company_B`, assert empty result. Lives in `tests/integration/` once real Supermemory integration lands (Sprint 4).
+  - Adapter boundary lowercases-and-strips `company_id` before tagging. Prevents `"COMPANY_abc"` vs `"company_abc"` silently creating split buckets.
+- **Early warning**: Any code review where a Supermemory call uses positional args that look like "container_tags might be missing" OR any PR touching `memory/` that doesn't have a matching test update.
+- **Fallback**: If a leak is observed in production, purge all memory for affected tenants via `memories.delete(container_tags=[compromised_ids])` (verify API support first — flagged open in zettel-supermemory-python-sdk.md "Further research"), then patch the adapter.
+
+---
+
+## Risk 13: Cloud Run SSE Response Buffering (Sprint 4 Streaming)
+
+- **Probability**: Medium
+- **Severity**: High (silent downgrade from streaming to batch — demo looks broken)
+- **Sprint impact**: Materializes in Sprint 4 when `/triage/stream` is built. Logged here in Sprint 0 for cross-sprint awareness and because the `main.py` middleware stack and CORS config (Sprint 0) must not introduce response-body-buffering middleware that blocks SSE later.
+- **What happened**: `/triage/stream` worked locally against uvicorn. Deployed to Cloud Run behind API Gateway. Browser `EventSource` connected, saw nothing for 30 seconds, then received the entire stream at once when the response closed. Judges thought the demo hung. Debug took a day — the issue was API Gateway buffering, not our code.
+- **Mitigation**:
+  - Sprint 4 streaming endpoint MUST set the three headers: `Cache-Control: no-cache`, `X-Accel-Buffering: no`, `Connection: keep-alive` (see `docs/research/zettel-fastapi-sse-cloud-run.md`).
+  - Sprint 4 MUST emit a keep-alive comment `: ping\n\n` every 15s during agent thinking gaps.
+  - Sprint 5 deploy path MUST be **Cloud Run direct**, NOT Cloud Run behind API Gateway. Documented in `docs/research/Supply-Chain-Deployment-Options-Research.md` evaluation.
+  - Sprint 4 acceptance test: `curl -N https://.../triage/stream` held open for 30+ seconds observes events arriving progressively (wall-clock timestamps per event), AND a browser `EventSource` does the same.
+  - Sprint 0 middleware: ensure no middleware in the canonical stack (AuditLog, FirebaseAuth, InputSanitization, CORS) buffers response bodies. Audit at Phase C4 review.
+- **Early warning**: During Sprint 4, if curl output all arrives at once at connection close, OR if `EventSource.onmessage` fires only after disconnect, STOP and check headers + infra path.
+- **Fallback**: Non-streaming `/triage` endpoint that returns the full `TriageResult` as JSON (ADR-004 names this as an explicit fallback). The same event generator feeds either endpoint — wrap in a list-accumulator for the sync version. Ship the sync endpoint for the demo if streaming isn't green by Sprint 4 Day 1.
+
+---
+
 ## Mitigation Summary
 
 | # | Risk | Mitigation Cost | Implemented? |
@@ -217,7 +250,9 @@ sources: ["[[Supply-Chain-Sprint-Plan-Spiral-SDLC]]"]
 | 9 | Library abandonment | 15 min due diligence | Day 1 |
 | 10 | Scope creep | Discipline | Every day |
 | 11 | Middleware ordering regression | 10 min (regression test 4.2) | Day 2 |
+| 12 | Supermemory container-tag contract | 15 min (required-positional signature + Fake client assertions) | Day 1 (interface shape) + Sprint 4 integration regression |
+| 13 | Cloud Run SSE buffering | Documented; enforced in Sprint 4 + Sprint 5 deploy path | Sprint 4 + 5 |
 
 **Most likely failure mode**: Risks 2, 8, and 10 combined — IAM eats Day 1, docs eat Day 2, scope creep eats Day 3, sprint ends red.
 
-**Watch metric**: End of each day, check sprint gate criteria (§4 of PRD). Any still-red item after its planned day = raise flag immediately.
+**Watch metric**: End of each day, check sprint gate criteria (§17 of PRD v2). Any still-red item after its planned day = raise flag immediately.
