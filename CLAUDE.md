@@ -32,7 +32,9 @@ The detailed rules live in `.claude/rules/*.md` and load automatically when you 
 | `api-routes.md` | `runners/**`, `middleware/**` | FastAPI dependency order, response envelopes, status codes, security-conscious error messages |
 | `agents.md` | `modules/*/agents/**` | ADK callbacks, state namespacing, two-agent structured-output pattern, thinking-budget defaults, graceful degradation |
 | `tools.md` | `modules/*/tools/**`, `agents/*/tools.py` | Return contract, signature, error classification, per-turn caching |
+| `models.md` | `modules/*/models/**`, `agents/*/schemas.py` | Pydantic v2 pyramid, tz-aware timestamps, UUIDv7 IDs, generic `Page[T]`, structured-output nesting limits |
 | `firestore.md` | `memory/`, `tools/`, `middleware/` | AsyncClient singleton, data model, cursor pagination, emulator setup |
+| `security.md` | `middleware/**`, `core/settings.py`, `runners/**` | What Firebase owns vs what still applies; custom claims + tier roles; rate limiting; security headers; PII-safe logging |
 | `observability.md` | `src/**` | OTel spans with `agent.name` + token usage, structured JSON logs, PII redaction |
 | `deployment.md` | `.github/workflows/**`, `Dockerfile`, `infra/**` | Multi-stage uv Dockerfile, Cloud Run vs Agent Engine, Workload Identity, secrets |
 | `testing.md` | `tests/**`, `evals/**` | pytest vs `adk eval` split, coverage discipline, emulator env vars |
