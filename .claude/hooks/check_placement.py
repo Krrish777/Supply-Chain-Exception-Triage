@@ -67,6 +67,7 @@ ALLOWLIST: tuple[str, ...] = (
     ".env.template",
     ".env",
     ".secrets.baseline",
+    ".gitleaksignore",
     "README.md",
     "CONTRIBUTING.md",
     "SECURITY.md",

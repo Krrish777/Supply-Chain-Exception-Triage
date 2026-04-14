@@ -49,6 +49,7 @@ infra/             — infrastructure config (non-code)
 
 firebase.json      — Firebase CLI config (emulators + deploy targets)
 .secrets.baseline  — detect-secrets baseline (committed, regenerated via pre-commit)
+.gitleaksignore    — gitleaks fingerprint allowlist (CI secret scanner — see .github/workflows/security.yml)
 ```
 
 ## Placement table
@@ -78,6 +79,7 @@ firebase.json      — Firebase CLI config (emulators + deploy targets)
 | Firestore rules / indexes | `infra/firestore.rules`, `infra/firestore.indexes.json` |
 | Firebase CLI config | `firebase.json` (repo root) |
 | detect-secrets baseline | `.secrets.baseline` (repo root) |
+| gitleaks fingerprint allowlist | `.gitleaksignore` (repo root) |
 
 ## Enforcement
 
