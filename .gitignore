@@ -37,3 +37,4 @@ Thumbs.db
 # Build
 dist/
 build/
+.adk/
