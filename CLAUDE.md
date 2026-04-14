@@ -36,12 +36,17 @@ The detailed rules live in `.claude/rules/*.md` and load automatically when you 
 | `observability.md` | `src/**` | OTel spans with `agent.name` + token usage, structured JSON logs, PII redaction |
 | `deployment.md` | `.github/workflows/**`, `Dockerfile`, `infra/**` | Multi-stage uv Dockerfile, Cloud Run vs Agent Engine, Workload Identity, secrets |
 | `testing.md` | `tests/**`, `evals/**` | pytest vs `adk eval` split, coverage discipline, emulator env vars |
+| `architecture-layers.md` | `src/**` | Application-layer import direction (`runners → agents → tools → memory → models → core/utils`); enforced by import-linter |
+| `code-quality.md` | `src/**` | Anti-bloat limits, no god functions, docstring scope, comments why-not-what |
 | `new-feature-checklist.md` | `src/**` | Per-feature 7-step workflow (agent branch + FastAPI branch) |
 
 Enforcement layers:
-- **Ruff `TID251`** — import rules fail lint, not just advisory (`pyproject.toml`).
+- **Ruff `TID251`** — vendor-import rules fail lint (`pyproject.toml`).
+- **import-linter** — application-layer direction contracts fail lint (`pyproject.toml` `[tool.importlinter]`).
+- **Ruff `D` + `interrogate`** — docstring style + coverage gate on boundary folders.
+- **Ruff `PLR09**`** — function-shape limits (args, branches, statements, returns, locals).
 - **PreToolUse hook** — `.claude/hooks/check_placement.py` rejects writes outside the placement allowlist.
-- **Pre-commit** — hygiene → ruff → mypy → gitleaks (`.pre-commit-config.yaml`).
+- **Pre-commit** — hygiene → ruff → mypy → lint-imports → interrogate → file-size → gitleaks.
 - **CI** — `uv sync --locked` as drift gate, full lint/type/test pipeline (`.github/workflows/ci.yml`).
 
 ## SDLC cycle — NON-NEGOTIABLE
