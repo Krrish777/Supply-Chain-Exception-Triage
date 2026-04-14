@@ -24,6 +24,9 @@ firebase-service-account*.json
 coverage.xml
 htmlcov/
 
+# Logs — written by utils.logging (rotating file handlers). Regenerated locally.
+logs/
+
 # uv
 # uv.lock IS committed
 
