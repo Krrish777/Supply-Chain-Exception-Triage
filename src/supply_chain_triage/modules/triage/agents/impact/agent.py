@@ -23,6 +23,7 @@ from supply_chain_triage.modules.triage.agents.impact.tools import (
     calculate_financial_impact,
     get_affected_shipments,
     get_customer_profile,
+    get_exception_event,
     get_route_and_hub_status,
     get_shipment_details,
 )
@@ -268,6 +269,7 @@ def create_impact() -> SequentialAgent:
         ),
         instruction=_FETCHER_INSTRUCTION,
         tools=[
+            get_exception_event,
             get_affected_shipments,
             get_shipment_details,
             get_customer_profile,
