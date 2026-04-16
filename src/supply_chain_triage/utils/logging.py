@@ -126,8 +126,7 @@ def _add_request_id(
 _CONSOLE_FORMAT = "%(message)s"
 _FILE_FORMAT = "%(asctime)s | %(name)s | %(levelname)s | [%(request_id)s] %(message)s"
 _ERROR_FORMAT = (
-    "%(asctime)s | %(name)s | %(levelname)s | [%(request_id)s] %(message)s\n"
-    "%(pathname)s:%(lineno)d"
+    "%(asctime)s | %(name)s | %(levelname)s | [%(request_id)s] %(message)s\n%(pathname)s:%(lineno)d"
 )
 _DATEFMT = "%Y-%m-%d %H:%M:%S"
 

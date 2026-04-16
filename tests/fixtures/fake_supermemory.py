@@ -87,7 +87,7 @@ class FakeSupermemoryClient(MemoryProvider):
             return self._user_contexts[(user_id, company_id)]
         except KeyError as exc:
             raise KeyError(
-                f"No seeded UserContext for user_id={user_id!r} " f"company_id={company_id!r}",
+                f"No seeded UserContext for user_id={user_id!r} company_id={company_id!r}",
             ) from exc
 
     async def fetch_company_profile(self, company_id: str) -> CompanyProfile:

@@ -31,8 +31,4 @@ def render_learned_preferences(user_context: UserContext) -> str:
     else:
         priorities_block = "- Preferred priority ordering: none learned yet"
 
-    return (
-        f"## Learned Preferences\n"
-        f"- Override patterns: {patterns_line}\n"
-        f"{priorities_block}\n"
-    )
+    return f"## Learned Preferences\n- Override patterns: {patterns_line}\n{priorities_block}\n"
