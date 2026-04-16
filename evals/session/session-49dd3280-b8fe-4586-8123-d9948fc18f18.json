@@ -1,0 +1,80 @@
+{
+  "id": "49dd3280-b8fe-4586-8123-d9948fc18f18",
+  "appName": "classifier",
+  "userId": "user",
+  "state": {
+    "triage:raw_exception_data": "## Exception Details\n- Event ID: direct-input\n- Source: manual_entry\n- Raw content: BlueDart truck BD-MH12-4521 broke down on the Mumbai-Pune Expressway near Lonavala at 06:30 IST. Driver reports engine failure. 12 packages onboard for\n  delivery today including 3 high-value B2B shipments for MegaMart. Mechanic ETA 3 hours.\n\n## Company Context\nNot available\n\n## Initial Observations\n- Key entities mentioned: BlueDart, BD-MH12-4521, Mumbai-Pune Expressway, Lonavala, MegaMart, 12 packages, 3 high-value B2B shipments\n- Time-sensitive indicators: delivery today, ETA 3 hours\n- Safety-related signals: None"
+  },
+  "events": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "BlueDart truck BD-MH12-4521 broke down on the Mumbai-Pune Expressway near Lonavala at 06:30 IST. Driver reports engine failure. 12 packages onboard for\n  delivery today including 3 high-value B2B shipments for MegaMart. Mechanic ETA 3 hours."
+          }
+        ],
+        "role": "user"
+      },
+      "invocationId": "e-1014219b-1691-499e-9b5c-294c12c298f0",
+      "author": "user",
+      "actions": {
+        "stateDelta": {},
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "d6663649-176e-4e5f-a47b-5596dff61ccc",
+      "timestamp": 1776328942.7607627
+    },
+    {
+      "invocationId": "e-1014219b-1691-499e-9b5c-294c12c298f0",
+      "author": "classifier",
+      "actions": {
+        "stateDelta": {},
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "185eb112-197c-4695-af17-0c0393069cb4",
+      "timestamp": 1776328942.7690969
+    },
+    {
+      "modelVersion": "gemini-2.5-flash",
+      "content": {
+        "parts": [
+          {
+            "text": "## Exception Details\n- Event ID: direct-input\n- Source: manual_entry\n- Raw content: BlueDart truck BD-MH12-4521 broke down on the Mumbai-Pune Expressway near Lonavala at 06:30 IST. Driver reports engine failure. 12 packages onboard for\n  delivery today including 3 high-value B2B shipments for MegaMart. Mechanic ETA 3 hours.\n\n## Company Context\nNot available\n\n## Initial Observations\n- Key entities mentioned: BlueDart, BD-MH12-4521, Mumbai-Pune Expressway, Lonavala, MegaMart, 12 packages, 3 high-value B2B shipments\n- Time-sensitive indicators: delivery today, ETA 3 hours\n- Safety-related signals: None",
+            "thoughtSignature": "CqYGAb4-9vv4vTt_atkV0hf_hFTnP6-MbTANNLEhETV01TUyNZjjtqqh2FbgpXzSSPrToqXOqJPQLbksDwe32zwSfD3wsG3qJOqW2viaXFVOnZyFlaYXgo66YSZEDMAUVtnAYP6dbrVOVYDXqvWb_LVVxSxe_YinhbveefQCJEmn-r0V0CTbHYZiC2zY_s_Y3ni_efOHyMiOEUTLLbHUANFrYzhjhH3VegX_euLEXgmoxF12b9JYmltYpXBJC-45_mxf8v2CooZTdBIu_0vhzu2eR33fdelyyvlR0cNBwL32JMWxIyVuuU_kI6ct6cI7fZiet_jcq8-86J9PhOotYKNCuCHEaUJ3AhFnuRBJaOjg7Dqd00U299C69OPXUQdSdtUaZ7rrjhln8nEgcvx9abkwiq5M--vNH8Y-kaSVWyFyQYmd0he0rTVFQfv0NHrnT75PRtNh2lqb4g0bTAjtIi47yZRVmvXzU6nfMjRbru14CKOaxw2dSDO9wLskouR2-5v4nXGpnjINJsDk8TliJUaAi5Ai02xgGtpRKAnUahfJVQCBvFqARLtkqadSWATab2z5Xkgy_gsIpFRdoJA3uNelqtUIwBcAF-E51rHEBk6O6YiymggwtjA5O-hl4d2AO_bthjiyLa_n-j0wACxxih-jg3F0DqbVI17qR7CtfjPYpP6Bxjm9gOPbamKXogZC7PO35H4sib2swFmFMYd1rL0UCbQV04xljfe4cnI_9NRrol0c3vsm-s7esNJqnpDIVia1R8nJHxbXm1LS07diSsdGcmzR91iRaGqzSaYmbZvN65QQBgaFty4n2eVlGKverTdVvHIGuVOdOjfOjnFa86Gj6Z4HsD5gOUZAv-BQBFej3vMwbHNpLM9a5pP437yNzlCTKH2hX-xjiCG2uGTTpfGRwxFQhmt_9DB5-BPaLDbzfGG8ogJMySbIditt55_FDH1DsJqwdFEnacHQ-QPZhAu5LC3L5vJMVzlju8Av_wwLdiIcKvdSSEtG6VbuflNqbo_H2mIXhZ9iG-W6SqwgEk2Egzt2lgCDyunR1g3rbqKdHfE2h_7PXQk="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "usageMetadata": {
+        "candidatesTokenCount": 171,
+        "promptTokenCount": 830,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 830
+          }
+        ],
+        "thoughtsTokenCount": 207,
+        "totalTokenCount": 1208
+      },
+      "invocationId": "e-1014219b-1691-499e-9b5c-294c12c298f0",
+      "author": "classifier_fetcher",
+      "actions": {
+        "stateDelta": {
+          "triage:raw_exception_data": "## Exception Details\n- Event ID: direct-input\n- Source: manual_entry\n- Raw content: BlueDart truck BD-MH12-4521 broke down on the Mumbai-Pune Expressway near Lonavala at 06:30 IST. Driver reports engine failure. 12 packages onboard for\n  delivery today including 3 high-value B2B shipments for MegaMart. Mechanic ETA 3 hours.\n\n## Company Context\nNot available\n\n## Initial Observations\n- Key entities mentioned: BlueDart, BD-MH12-4521, Mumbai-Pune Expressway, Lonavala, MegaMart, 12 packages, 3 high-value B2B shipments\n- Time-sensitive indicators: delivery today, ETA 3 hours\n- Safety-related signals: None"
+        },
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "ca663ab8-b350-4763-98ce-06f0be43495e",
+      "timestamp": 1776328942.78374
+    }
+  ],
+  "lastUpdateTime": 1776328942.78374
+}

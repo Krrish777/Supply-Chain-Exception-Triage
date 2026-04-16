@@ -108,7 +108,7 @@ def _clear_history(
 ) -> None:
     """Clear conversation history for the formatter to save tokens.
 
-    The formatter only needs ``{triage:raw_exception_data}`` from state, not
+    The formatter only needs ``{raw_exception_data}`` from state, not
     the full fetcher conversation. Per ADK discussion #3457.
     """
     if llm_request is not None:
@@ -166,7 +166,7 @@ def _apply_post_classification_rules(
         modified = True
 
     # Rule: safety keywords in raw exception data -> force escalation
-    raw_data = callback_context.state.get("triage:raw_exception_data", "")
+    raw_data = callback_context.state.get("raw_exception_data", "")
     if isinstance(raw_data, str):
         raw_lower = raw_data.lower()
         matched = [kw for kw in _SAFETY_KEYWORDS if kw in raw_lower]
@@ -202,7 +202,7 @@ def create_classifier() -> SequentialAgent:
         description="Retrieves exception event and company context from Firestore.",
         instruction=_FETCHER_INSTRUCTION,
         tools=[get_exception_event, get_company_profile],
-        output_key="triage:raw_exception_data",
+        output_key="raw_exception_data",
         generate_content_config=genai_types.GenerateContentConfig(
             thinking_config=genai_types.ThinkingConfig(thinking_budget=1024),
             temperature=0.0,
@@ -214,8 +214,7 @@ def create_classifier() -> SequentialAgent:
         name="classifier_formatter",
         model=_MODEL,
         description="Classifies the exception into type, severity, and extracts key facts.",
-        instruction="Classify this exception:\n\n{triage:raw_exception_data}\n\n"
-        + _FORMATTER_INSTRUCTION,
+        instruction="Classify this exception:\n\n{raw_exception_data}\n\n" + _FORMATTER_INSTRUCTION,
         output_schema=ClassificationResult,
         output_key="triage:classification",
         include_contents="none",

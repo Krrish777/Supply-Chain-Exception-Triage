@@ -97,21 +97,21 @@ class TestPostClassificationRules:
         return json.dumps(base)
 
     def test_safety_incident_clamped_to_critical(self):
-        ctx = _ctx({"triage:raw_exception_data": ""})
+        ctx = _ctx({"raw_exception_data": ""})
         raw = self._make_classification(exception_type="safety_incident", severity="MEDIUM")
         _apply_post_classification_rules(ctx, raw)
         result = json.loads(ctx.state["triage:classification"])
         assert result["severity"] == "CRITICAL"
 
     def test_regulatory_clamped_to_high(self):
-        ctx = _ctx({"triage:raw_exception_data": ""})
+        ctx = _ctx({"raw_exception_data": ""})
         raw = self._make_classification(exception_type="regulatory_compliance", severity="LOW")
         _apply_post_classification_rules(ctx, raw)
         result = json.loads(ctx.state["triage:classification"])
         assert result["severity"] == "HIGH"
 
     def test_regulatory_high_not_downgraded(self):
-        ctx = _ctx({"triage:raw_exception_data": ""})
+        ctx = _ctx({"raw_exception_data": ""})
         raw = self._make_classification(exception_type="regulatory_compliance", severity="CRITICAL")
         _apply_post_classification_rules(ctx, raw)
         # Severity already above HIGH — should remain CRITICAL
@@ -121,21 +121,21 @@ class TestPostClassificationRules:
             assert result["severity"] == "CRITICAL"
 
     def test_low_confidence_triggers_human_approval(self):
-        ctx = _ctx({"triage:raw_exception_data": ""})
+        ctx = _ctx({"raw_exception_data": ""})
         raw = self._make_classification(confidence=0.5)
         _apply_post_classification_rules(ctx, raw)
         result = json.loads(ctx.state["triage:classification"])
         assert result["requires_human_approval"] is True
 
     def test_high_confidence_no_human_approval(self):
-        ctx = _ctx({"triage:raw_exception_data": ""})
+        ctx = _ctx({"raw_exception_data": ""})
         raw = self._make_classification(confidence=0.9)
         _apply_post_classification_rules(ctx, raw)
         # No modification expected — state should not be written
         assert "triage:classification" not in ctx.state
 
     def test_safety_keywords_trigger_escalation(self):
-        ctx = _ctx({"triage:raw_exception_data": "There was a fire and chemical spill"})
+        ctx = _ctx({"raw_exception_data": "There was a fire and chemical spill"})
         raw = self._make_classification()
         _apply_post_classification_rules(ctx, raw)
         result = json.loads(ctx.state["triage:classification"])
@@ -146,14 +146,14 @@ class TestPostClassificationRules:
         assert result["severity"] == "CRITICAL"
 
     def test_no_safety_keywords_no_escalation(self):
-        ctx = _ctx({"triage:raw_exception_data": "normal delivery delay for BlueDart"})
+        ctx = _ctx({"raw_exception_data": "normal delivery delay for BlueDart"})
         raw = self._make_classification()
         _apply_post_classification_rules(ctx, raw)
         # No modification expected
         assert "triage:classification" not in ctx.state
 
     def test_invalid_json_does_not_crash(self):
-        ctx = _ctx({"triage:raw_exception_data": ""})
+        ctx = _ctx({"raw_exception_data": ""})
         _apply_post_classification_rules(ctx, "not valid json")
         # Should not raise, should not write to state
         assert "triage:classification" not in ctx.state

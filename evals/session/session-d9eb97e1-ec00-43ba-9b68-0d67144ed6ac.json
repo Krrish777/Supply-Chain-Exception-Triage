@@ -1,0 +1,178 @@
+{
+  "id": "d9eb97e1-ec00-43ba-9b68-0d67144ed6ac",
+  "appName": "classifier",
+  "userId": "user",
+  "state": {
+    "triage:raw_exception_data": "## Exception Details\n- Event ID: direct-input\n- Source: manual_entry\n- Raw content: BlueDart truck BD-MH12-4521 broke down on the Mumbai-Pune Expressway near Lonavala at 06:30 IST. Driver reports engine failure. 12 packages onboard for delivery today including 3 high-value B2B shipments for MegaMart. Mechanic ETA 3 hours.\n\n## Company Context\nNot available\n\n## Initial Observations\n- Key entities mentioned: BlueDart (carrier), BD-MH12-4521 (truck/shipment ID), Mumbai-Pune Expressway, Lonavala (locations), MegaMart (company), 12 packages, 3 high-value B2B shipments.\n- Time-sensitive indicators: delivery today, Mechanic ETA 3 hours.\n- Safety-related signals: broke down, engine failure.",
+    "triage:classification": {
+      "exception_type": "carrier_capacity_failure",
+      "subtype": "driver_shortage",
+      "severity": "HIGH",
+      "urgency_hours": 4,
+      "confidence": 0.9,
+      "key_facts": [
+        {
+          "key": "carrier_name",
+          "value": "Gati"
+        },
+        {
+          "key": "location",
+          "value": "Delhi hub"
+        },
+        {
+          "key": "disruption_cause",
+          "value": "driver shortage"
+        },
+        {
+          "key": "affected_shipment_count",
+          "value": "50+"
+        },
+        {
+          "key": "estimated_delay_hours",
+          "value": "24"
+        }
+      ],
+      "reasoning": "Gati is experiencing a driver shortage at their Delhi hub, affecting over 50 shipments with an estimated 24-hour delay. This is a HIGH severity issue due to the number of affected shipments and potential for SLA breaches.",
+      "requires_human_approval": false,
+      "tools_used": []
+    }
+  },
+  "events": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "BlueDart truck BD-MH12-4521 broke down on the Mumbai-Pune Expressway near Lonavala at 06:30 IST. Driver reports engine failure. 12 packages onboard for delivery today including 3 high-value B2B shipments for MegaMart. Mechanic ETA 3 hours."
+          }
+        ],
+        "role": "user"
+      },
+      "invocationId": "e-199f1725-7c35-483a-b19a-bce36019d1cf",
+      "author": "user",
+      "actions": {
+        "stateDelta": {},
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "1bcc2369-49d6-4be9-a10b-68a324993524",
+      "timestamp": 1776331666.1244593
+    },
+    {
+      "invocationId": "e-199f1725-7c35-483a-b19a-bce36019d1cf",
+      "author": "classifier",
+      "actions": {
+        "stateDelta": {},
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "10c62c3b-bff4-4e1a-8cfd-0c98f439832d",
+      "timestamp": 1776331666.1372652
+    },
+    {
+      "modelVersion": "gemini-2.5-flash",
+      "content": {
+        "parts": [
+          {
+            "text": "## Exception Details\n- Event ID: direct-input\n- Source: manual_entry\n- Raw content: BlueDart truck BD-MH12-4521 broke down on the Mumbai-Pune Expressway near Lonavala at 06:30 IST. Driver reports engine failure. 12 packages onboard for delivery today including 3 high-value B2B shipments for MegaMart. Mechanic ETA 3 hours.\n\n## Company Context\nNot available\n\n## Initial Observations\n- Key entities mentioned: BlueDart (carrier), BD-MH12-4521 (truck/shipment ID), Mumbai-Pune Expressway, Lonavala (locations), MegaMart (company), 12 packages, 3 high-value B2B shipments.\n- Time-sensitive indicators: delivery today, Mechanic ETA 3 hours.\n- Safety-related signals: broke down, engine failure.",
+            "thoughtSignature": "CsEHAb4-9vv3leoU3sNhTBoyJMkSWP38-nwnmuE9nMRlMoKVzfwIrckaxw5HUq9fabf9OdL6dneMmI5K00JpxG88BYDhIwfPcI_n8scg5rogohtzxSDFsGWP7o8Pplz6gfoz90MV8r8TgNqbqVTU7TvSz-iI0brV5_qXZrtyCWFVOdRMNE0yXOuUbjz0e-ypExR2Ypqo0bQYQ679-CupFgoIlmOSoam_8c6UCMn9prptwzhKMwNwLjVnE4vK2NjZ7ZswvaZYd3HarGs3G3Etw_YfY8coIoburk0CJ9HCcuPUfEAKUQab6pCmyRT-T2byIFngN2YoDfgaXw7PpBqtBWvPlLeDsgEyl0hh0PkiJag5XCzAzK8Yti8tXVcmTrS9rRU0Yb8SDzWhqb0SnuT-IE3I1xzSA_E-qmkUNDEiNyrxdziKuELgDJia6O1gZjTX9CwFNyEBeQs4OMV8dDViSDS0uRB6XKpsbSl8YCfzXOyQoGDMO8_M57LhzTPix1_a-kXLuidQHLkNxv_xMtPZG1TGSqJMNlsM7C4A0K2WVBVC-J5GBklQxtvyfZpisGAa53lGx-YjSswDnRrA9Llsg03xva9bJUVti8BHqlLMRKIBbhCyZt5S5FksfsbtYXK3_1akP8LFVNGGD89P4QzN_xaBMByyY9zQpFuqwHJ3bhx6ENK5mkXt0AvdcW63oYvUBQXR2idxvQLxxdx-ucAGHzrDghve85OaYAraTy_BaPaJ2RVTHKDkeQBCzDsSzoklSRpjz4aqJPpozBFlgj5FyjA9Wn-DkNty_tw-6EcQDOR_aij81YcEAaQehhuIGc-2rfSfxicc1YjTobLqbZToZf1Q9S45imycLfI0loJITea1S_Ks6I9d014fzN3CFVbwL1b6jfwuKOPJOSIJzfiCIPOJIgQmQQ-mx0_eIypFbIA29R_ui0F_JGHJflaUUIQl9PSTxysSxk2MCAjrCJ-OdDa1E5tm-G2EtHC654sI8cM8L5pT6otYIy2c0jpZ-WM02EJJWI_OGoi08kCx2F-0kPfUnXNg48hwqxIxFQ-g-v_BoZLo1ZXJ8t3B4YtdQiaCdOcftXCkV66zfasSBMVwy9FFN9-Us35uHuUUbRdshiD33vRZ0PEYFD8qYHbh00ZsAInm9HZXXOzg4G0FuUYzMlYUBevSNtVEh0OoJpcIkriaE8JZnvw-iQW4YyKt3J_9JV-Lmy9RQaZ1khJaVYUpuZy5HetMYTvoTuONy1BpHjK92Q0Tanp8e0bdfJiX29dt4m0mgA=="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "usageMetadata": {
+        "candidatesTokenCount": 189,
+        "promptTokenCount": 828,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 828
+          }
+        ],
+        "thoughtsTokenCount": 239,
+        "totalTokenCount": 1256
+      },
+      "invocationId": "e-199f1725-7c35-483a-b19a-bce36019d1cf",
+      "author": "classifier_fetcher",
+      "actions": {
+        "stateDelta": {
+          "triage:raw_exception_data": "## Exception Details\n- Event ID: direct-input\n- Source: manual_entry\n- Raw content: BlueDart truck BD-MH12-4521 broke down on the Mumbai-Pune Expressway near Lonavala at 06:30 IST. Driver reports engine failure. 12 packages onboard for delivery today including 3 high-value B2B shipments for MegaMart. Mechanic ETA 3 hours.\n\n## Company Context\nNot available\n\n## Initial Observations\n- Key entities mentioned: BlueDart (carrier), BD-MH12-4521 (truck/shipment ID), Mumbai-Pune Expressway, Lonavala (locations), MegaMart (company), 12 packages, 3 high-value B2B shipments.\n- Time-sensitive indicators: delivery today, Mechanic ETA 3 hours.\n- Safety-related signals: broke down, engine failure."
+        },
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "0cab5a2a-daa9-4156-94a7-b75407615241",
+      "timestamp": 1776331666.1547694
+    },
+    {
+      "modelVersion": "gemini-2.5-flash",
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"exception_type\": \"carrier_capacity_failure\",\n  \"subtype\": \"driver_shortage\",\n  \"severity\": \"HIGH\",\n  \"urgency_hours\": 4,\n  \"confidence\": 0.90,\n  \"key_facts\": [\n    {\"key\": \"carrier_name\", \"value\": \"Gati\"},\n    {\"key\": \"location\", \"value\": \"Delhi hub\"},\n    {\"key\": \"disruption_cause\", \"value\": \"driver shortage\"},\n    {\"key\": \"affected_shipment_count\", \"value\": \"50+\"},\n    {\"key\": \"estimated_delay_hours\", \"value\": \"24\"}\n  ],\n  \"reasoning\": \"Gati is experiencing a driver shortage at their Delhi hub, affecting over 50 shipments with an estimated 24-hour delay. This is a HIGH severity issue due to the number of affected shipments and potential for SLA breaches.\",\n  \"requires_human_approval\": false,\n  \"tools_used\": [],\n  \"safety_escalation\": null\n}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "usageMetadata": {
+        "candidatesTokenCount": 241,
+        "promptTokenCount": 2411,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 2411
+          }
+        ],
+        "totalTokenCount": 2652
+      },
+      "invocationId": "e-199f1725-7c35-483a-b19a-bce36019d1cf",
+      "author": "classifier_formatter",
+      "actions": {
+        "stateDelta": {
+          "triage:classification": {
+            "exception_type": "carrier_capacity_failure",
+            "subtype": "driver_shortage",
+            "severity": "HIGH",
+            "urgency_hours": 4,
+            "confidence": 0.9,
+            "key_facts": [
+              {
+                "key": "carrier_name",
+                "value": "Gati"
+              },
+              {
+                "key": "location",
+                "value": "Delhi hub"
+              },
+              {
+                "key": "disruption_cause",
+                "value": "driver shortage"
+              },
+              {
+                "key": "affected_shipment_count",
+                "value": "50+"
+              },
+              {
+                "key": "estimated_delay_hours",
+                "value": "24"
+              }
+            ],
+            "reasoning": "Gati is experiencing a driver shortage at their Delhi hub, affecting over 50 shipments with an estimated 24-hour delay. This is a HIGH severity issue due to the number of affected shipments and potential for SLA breaches.",
+            "requires_human_approval": false,
+            "tools_used": []
+          }
+        },
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "b1ecd6a7-baac-4474-9aec-8816c08f414d",
+      "timestamp": 1776331670.2414196
+    }
+  ],
+  "lastUpdateTime": 1776331670.2414196
+}
