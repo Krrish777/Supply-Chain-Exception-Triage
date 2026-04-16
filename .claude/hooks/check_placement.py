@@ -79,6 +79,8 @@ ALLOWLIST: tuple[str, ...] = (
     ".github/**",
     # Claude project config + rules + hooks
     ".claude/**",
+    # Session memory (remember plugin)
+    ".remember/**",
 )
 
 
@@ -108,14 +110,14 @@ def extract_paths(tool_name: str, tool_input: dict) -> list[str]:
     return []
 
 
-def to_relative(abs_path: str) -> str:
-    """Convert an absolute path to repo-relative, or return as-is if outside repo."""
+def to_relative(abs_path: str) -> str | None:
+    """Convert an absolute path to repo-relative, or None if outside repo."""
     try:
         cwd = PurePosixPath(str(Path.cwd()).replace("\\", "/"))
         target = PurePosixPath(abs_path.replace("\\", "/"))
         return str(target.relative_to(cwd))
     except ValueError:
-        return abs_path
+        return None  # Outside project tree — not our concern
 
 
 def main() -> int:
@@ -132,6 +134,8 @@ def main() -> int:
 
     for abs_path in paths:
         rel = to_relative(abs_path)
+        if rel is None:
+            continue  # Outside project tree — not our concern
         if not is_allowed(rel):
             sys.stderr.write(
                 f"[placement-hook] Rejected write to {rel!r}.\n"
