@@ -21,9 +21,16 @@ from supply_chain_triage.modules.triage.models.exception_event import (
     ExceptionEvent,
     SourceChannel,
 )
+from supply_chain_triage.modules.triage.models.financial import FinancialBreakdown
 from supply_chain_triage.modules.triage.models.impact import ImpactResult, ShipmentImpact
 from supply_chain_triage.modules.triage.models.learned_preferences import (
     render_learned_preferences,
+)
+from supply_chain_triage.modules.triage.models.route import (
+    HubCapacityWindow,
+    HubStatus,
+    RouteDefinition,
+    RouteLeg,
 )
 from supply_chain_triage.modules.triage.models.triage_result import (
     EscalationPriority,
@@ -39,7 +46,12 @@ __all__ = [
     "EscalationPriority",
     "ExceptionEvent",
     "ExceptionType",
+    "FinancialBreakdown",
+    "HubCapacityWindow",
+    "HubStatus",
     "ImpactResult",
+    "RouteDefinition",
+    "RouteLeg",
     "Severity",
     "ShipmentImpact",
     "SourceChannel",

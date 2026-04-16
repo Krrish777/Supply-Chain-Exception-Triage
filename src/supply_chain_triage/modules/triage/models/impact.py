@@ -3,12 +3,19 @@
 Rule E (reputation risk) fields sourced from
 ``docs/research/Supply-Chain-Agent-Spec-Impact.md`` §234-243. Dynamic impact
 weighting rules documented in the same note at §198-221.
+
+``ShipmentImpact`` includes per-shipment financial breakdown (rerouting,
+holding, opportunity costs) and route-leg tracking. ``ImpactResult`` includes
+ripple analysis fields (total financial exposure, cascade risk summary, hub
+congestion risk, estimated delay). Impact weights are computed in a
+post-processing callback and stored in a separate state key — not embedded
+in the model to avoid Gemini ``additionalProperties`` rejection.
 """
 
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003 — runtime-needed by Pydantic validation
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -16,7 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class ShipmentImpact(BaseModel):
     """Impact assessment for a single affected shipment."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict()
 
     shipment_id: str = Field(..., min_length=1)
     customer_id: str = Field(..., min_length=1)
@@ -45,11 +52,20 @@ class ShipmentImpact(BaseModel):
 
     special_notes: str | None = None
 
+    # Financial breakdown: costs incurred due to the exception for this shipment
+    rerouting_cost_inr: int = Field(0, ge=0)
+    holding_cost_inr: int = Field(0, ge=0)
+    opportunity_cost_inr: int = Field(0, ge=0)
+
+    # Route leg tracking: where in the journey the shipment is currently stuck
+    current_route_leg: int | None = None
+    remaining_route_legs: int | None = None
+
 
 class ImpactResult(BaseModel):
     """Aggregate impact result returned by the Impact Agent."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict()
 
     event_id: str
     affected_shipments: list[ShipmentImpact] = Field(default_factory=list)
@@ -62,13 +78,14 @@ class ImpactResult(BaseModel):
     recommended_priority_order: list[str] = Field(default_factory=list)
     priority_reasoning: str = ""
 
-    impact_weights_used: dict[str, Any] = Field(
-        default_factory=dict,
-        description="Weights LLM chose per-exception for (value, penalty, churn) + reasoning",
-    )
-
     has_reputation_risks: bool = False
     reputation_risk_shipments: list[str] = Field(default_factory=list)
+
+    # Ripple analysis: network-level impact beyond individual shipments
+    total_financial_exposure_inr: int = Field(0, ge=0)
+    cascade_risk_summary: str = ""
+    hub_congestion_risk: str | None = None
+    estimated_delay_hours: float = 0.0
 
     tools_used: list[str] = Field(default_factory=list)
     summary: str = ""

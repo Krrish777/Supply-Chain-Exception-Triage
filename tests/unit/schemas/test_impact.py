@@ -44,7 +44,6 @@ class TestImpactResultEmptyAffectedShipments:
             "critical_path_shipment_id": None,
             "recommended_priority_order": [],
             "priority_reasoning": "",
-            "impact_weights_used": {},
             "has_reputation_risks": False,
             "reputation_risk_shipments": [],
             "tools_used": [],
