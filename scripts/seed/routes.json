@@ -1,0 +1,107 @@
+[
+  {
+    "route_id": "ROUTE-MUM-PUNE-01",
+    "corridor_name": "Mumbai-Pune Express",
+    "legs": [
+      {
+        "leg_number": 1,
+        "origin_hub": "hub_mumbai",
+        "destination_hub": "hub_lonavala_transit",
+        "distance_km": 83,
+        "estimated_hours": 2.5
+      },
+      {
+        "leg_number": 2,
+        "origin_hub": "hub_lonavala_transit",
+        "destination_hub": "hub_pune",
+        "distance_km": 67,
+        "estimated_hours": 2.0
+      }
+    ],
+    "total_distance_km": 150
+  },
+  {
+    "route_id": "ROUTE-MUM-BLR-01",
+    "corridor_name": "Mumbai-Bangalore Trunk",
+    "legs": [
+      {
+        "leg_number": 1,
+        "origin_hub": "hub_mumbai",
+        "destination_hub": "hub_pune",
+        "distance_km": 150,
+        "estimated_hours": 4.0
+      },
+      {
+        "leg_number": 2,
+        "origin_hub": "hub_pune",
+        "destination_hub": "hub_kolhapur",
+        "distance_km": 228,
+        "estimated_hours": 5.5
+      },
+      {
+        "leg_number": 3,
+        "origin_hub": "hub_kolhapur",
+        "destination_hub": "hub_hubli_transit",
+        "distance_km": 202,
+        "estimated_hours": 5.0
+      },
+      {
+        "leg_number": 4,
+        "origin_hub": "hub_hubli_transit",
+        "destination_hub": "hub_bangalore",
+        "distance_km": 400,
+        "estimated_hours": 9.0
+      }
+    ],
+    "total_distance_km": 980
+  },
+  {
+    "route_id": "ROUTE-DEL-JAI-AHM-01",
+    "corridor_name": "Delhi-Jaipur-Ahmedabad Corridor",
+    "legs": [
+      {
+        "leg_number": 1,
+        "origin_hub": "hub_delhi",
+        "destination_hub": "hub_jaipur",
+        "distance_km": 268,
+        "estimated_hours": 5.5
+      },
+      {
+        "leg_number": 2,
+        "origin_hub": "hub_jaipur",
+        "destination_hub": "hub_udaipur_transit",
+        "distance_km": 312,
+        "estimated_hours": 6.5
+      },
+      {
+        "leg_number": 3,
+        "origin_hub": "hub_udaipur_transit",
+        "destination_hub": "hub_ahmedabad",
+        "distance_km": 370,
+        "estimated_hours": 7.5
+      }
+    ],
+    "total_distance_km": 950
+  },
+  {
+    "route_id": "ROUTE-CHN-BLR-01",
+    "corridor_name": "Chennai-Bangalore Express",
+    "legs": [
+      {
+        "leg_number": 1,
+        "origin_hub": "hub_chennai",
+        "destination_hub": "hub_vellore_transit",
+        "distance_km": 135,
+        "estimated_hours": 3.0
+      },
+      {
+        "leg_number": 2,
+        "origin_hub": "hub_vellore_transit",
+        "destination_hub": "hub_bangalore",
+        "distance_km": 215,
+        "estimated_hours": 4.5
+      }
+    ],
+    "total_distance_km": 350
+  }
+]

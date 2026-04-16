@@ -1,1 +1,226 @@
-[]
+[
+  {
+    "customer_id": "cust_blushbox",
+    "company_id": "swiftlogix-001",
+    "name": "BlushBox Beauty",
+    "customer_type": "d2c",
+    "customer_tier": "high_value",
+    "relationship_value_inr": 5000000,
+    "churn_risk_score": 0.7,
+    "active_since": "2022-06-15T00:00:00+05:30",
+    "total_shipments_count": 214,
+    "successful_delivery_rate": 0.91,
+    "default_sla_terms": {
+      "on_time_threshold_hours": 24,
+      "penalty_per_hour_delayed_inr": 5000,
+      "max_penalty_inr": 150000
+    },
+    "primary_contact": {
+      "name": "Priya Mehta",
+      "role": "Head of Supply Chain",
+      "phone": "+91-98201-11234",
+      "email": "priya.mehta@blushboxbeauty.in",
+      "preferred_channel": "whatsapp"
+    },
+    "historical_metrics": {
+      "avg_resolution_satisfaction": 3.2,
+      "escalation_frequency": 0.18,
+      "tolerance_for_delays": "very_low"
+    },
+    "special_handling_notes": "Influencer campaign shipments have hard launch deadlines tied to social media post schedules. Any delay beyond 2 hours on campaign stock must trigger an immediate call, not just an SMS. Cosmetics require temperature-controlled storage if held overnight.",
+    "created_at": "2022-06-15T09:00:00+05:30",
+    "updated_at": "2026-04-10T14:30:00+05:30"
+  },
+  {
+    "customer_id": "cust_fithaus",
+    "company_id": "swiftlogix-001",
+    "name": "FitHaus Nutrition",
+    "customer_type": "d2c",
+    "customer_tier": "repeat_standard",
+    "relationship_value_inr": 1200000,
+    "churn_risk_score": 0.3,
+    "active_since": "2023-03-01T00:00:00+05:30",
+    "total_shipments_count": 89,
+    "successful_delivery_rate": 0.96,
+    "default_sla_terms": {
+      "on_time_threshold_hours": 48,
+      "penalty_per_hour_delayed_inr": 1000,
+      "max_penalty_inr": 30000
+    },
+    "primary_contact": {
+      "name": "Arjun Rao",
+      "role": "Operations Manager",
+      "phone": "+91-98765-43210",
+      "email": "arjun.rao@fithausnutrition.in",
+      "preferred_channel": "email"
+    },
+    "historical_metrics": {
+      "avg_resolution_satisfaction": 4.1,
+      "escalation_frequency": 0.05,
+      "tolerance_for_delays": "moderate"
+    },
+    "special_handling_notes": "Routine monthly replenishment cycles. Protein powder and supplement shipments are heavy (15-25 kg/box) — ensure ground-floor delivery. No weekend deliveries to their Pune warehouse.",
+    "created_at": "2023-03-01T10:00:00+05:30",
+    "updated_at": "2026-03-28T11:00:00+05:30"
+  },
+  {
+    "customer_id": "cust_kraftheaven",
+    "company_id": "swiftlogix-001",
+    "name": "KraftHeaven Home",
+    "customer_type": "d2c",
+    "customer_tier": "new",
+    "relationship_value_inr": 300000,
+    "churn_risk_score": 0.6,
+    "active_since": "2026-03-10T00:00:00+05:30",
+    "total_shipments_count": 7,
+    "successful_delivery_rate": 0.86,
+    "default_sla_terms": {
+      "on_time_threshold_hours": 72,
+      "penalty_per_hour_delayed_inr": 500,
+      "max_penalty_inr": 15000
+    },
+    "primary_contact": {
+      "name": "Sneha Kapoor",
+      "role": "Co-Founder",
+      "phone": "+91-87654-32109",
+      "email": "sneha@kraftheavenhome.com",
+      "preferred_channel": "whatsapp"
+    },
+    "historical_metrics": {
+      "avg_resolution_satisfaction": 3.5,
+      "escalation_frequency": 0.14,
+      "tolerance_for_delays": "low"
+    },
+    "special_handling_notes": "New customer onboarding — first order is a Diwali home decor collection with display deadlines. Fragile items (diyas, lanterns, clay pots) require special packaging confirmation before dispatch. First impressions matter for retention.",
+    "created_at": "2026-03-10T09:30:00+05:30",
+    "updated_at": "2026-04-14T16:00:00+05:30"
+  },
+  {
+    "customer_id": "cust_corecloud",
+    "company_id": "swiftlogix-001",
+    "name": "CoreCloud Tech",
+    "customer_type": "b2b",
+    "customer_tier": "b2b_enterprise",
+    "relationship_value_inr": 8000000,
+    "churn_risk_score": 0.1,
+    "active_since": "2020-11-20T00:00:00+05:30",
+    "total_shipments_count": 512,
+    "successful_delivery_rate": 0.98,
+    "default_sla_terms": {
+      "on_time_threshold_hours": 72,
+      "penalty_per_hour_delayed_inr": 8000,
+      "max_penalty_inr": 400000
+    },
+    "primary_contact": {
+      "name": "Vikram Nair",
+      "role": "VP Procurement",
+      "phone": "+91-99887-76655",
+      "email": "vikram.nair@corecloud.tech",
+      "preferred_channel": "email"
+    },
+    "historical_metrics": {
+      "avg_resolution_satisfaction": 4.5,
+      "escalation_frequency": 0.02,
+      "tolerance_for_delays": "moderate"
+    },
+    "special_handling_notes": "Long-standing enterprise account. Server racks and networking hardware require tail-lift vehicles and on-site installation coordination — always check data centre access window before scheduling. Strict PO-based invoicing; no verbal approvals.",
+    "created_at": "2020-11-20T08:00:00+05:30",
+    "updated_at": "2026-04-01T09:00:00+05:30"
+  },
+  {
+    "customer_id": "cust_mediquick",
+    "company_id": "comp_nimblefreight",
+    "name": "MediQuick Pharma",
+    "customer_type": "b2b",
+    "customer_tier": "b2b_enterprise",
+    "relationship_value_inr": 12000000,
+    "churn_risk_score": 0.15,
+    "active_since": "2019-08-05T00:00:00+05:30",
+    "total_shipments_count": 934,
+    "successful_delivery_rate": 0.97,
+    "default_sla_terms": {
+      "on_time_threshold_hours": 24,
+      "penalty_per_hour_delayed_inr": 15000,
+      "max_penalty_inr": 750000
+    },
+    "primary_contact": {
+      "name": "Dr. Anita Sharma",
+      "role": "Director, Cold Chain Logistics",
+      "phone": "+91-95555-12345",
+      "email": "anita.sharma@mediquickpharma.in",
+      "preferred_channel": "phone"
+    },
+    "historical_metrics": {
+      "avg_resolution_satisfaction": 4.3,
+      "escalation_frequency": 0.04,
+      "tolerance_for_delays": "very_low"
+    },
+    "special_handling_notes": "Pharma cold chain: 2-8°C corridor for biologics, 15-25°C for general medicines. Temperature log must accompany every delivery — CDSCO compliance. Any cold chain breach must be reported to Dr. Sharma within 30 minutes. Regulatory penalties apply to carrier if breach is unreported.",
+    "created_at": "2019-08-05T08:00:00+05:30",
+    "updated_at": "2026-04-12T10:00:00+05:30"
+  },
+  {
+    "customer_id": "cust_freshkart",
+    "company_id": "comp_nimblefreight",
+    "name": "FreshKart Groceries",
+    "customer_type": "marketplace",
+    "customer_tier": "repeat_standard",
+    "relationship_value_inr": 2500000,
+    "churn_risk_score": 0.4,
+    "active_since": "2021-05-18T00:00:00+05:30",
+    "total_shipments_count": 1247,
+    "successful_delivery_rate": 0.89,
+    "default_sla_terms": {
+      "on_time_threshold_hours": 12,
+      "penalty_per_hour_delayed_inr": 3000,
+      "max_penalty_inr": 80000
+    },
+    "primary_contact": {
+      "name": "Rohit Joshi",
+      "role": "Category Manager, Grocery",
+      "phone": "+91-93333-22211",
+      "email": "rohit.joshi@freshkart.in",
+      "preferred_channel": "sms"
+    },
+    "historical_metrics": {
+      "avg_resolution_satisfaction": 3.6,
+      "escalation_frequency": 0.11,
+      "tolerance_for_delays": "very_low"
+    },
+    "special_handling_notes": "Perishable goods — fruits, vegetables, dairy. Maximum shelf life at point of handover is non-negotiable. Delivery windows are 04:00-08:00 IST for dark store replenishment. Missed windows cause downstream stockouts affecting 10,000+ end consumers. FreshKart tracks carrier NPS monthly.",
+    "created_at": "2021-05-18T07:00:00+05:30",
+    "updated_at": "2026-04-15T08:00:00+05:30"
+  },
+  {
+    "customer_id": "cust_styleverse",
+    "company_id": "comp_nimblefreight",
+    "name": "StyleVerse Fashion",
+    "customer_type": "d2c",
+    "customer_tier": "high_value",
+    "relationship_value_inr": 4000000,
+    "churn_risk_score": 0.65,
+    "active_since": "2022-01-10T00:00:00+05:30",
+    "total_shipments_count": 178,
+    "successful_delivery_rate": 0.88,
+    "default_sla_terms": {
+      "on_time_threshold_hours": 36,
+      "penalty_per_hour_delayed_inr": 4000,
+      "max_penalty_inr": 200000
+    },
+    "primary_contact": {
+      "name": "Meera Reddy",
+      "role": "Chief Operating Officer",
+      "phone": "+91-91234-56789",
+      "email": "meera.reddy@styleverse.fashion",
+      "preferred_channel": "whatsapp"
+    },
+    "historical_metrics": {
+      "avg_resolution_satisfaction": 3.0,
+      "escalation_frequency": 0.2,
+      "tolerance_for_delays": "very_low"
+    },
+    "special_handling_notes": "High churn risk — actively evaluating competitor carriers (Delhivery Enterprise, BlueDart Express). Fashion launch shipments are tied to Instagram campaign dates. A delay during a launch week directly impacts revenue and influencer contracts. Meera has escalated to the CEO level twice in the past 6 months.",
+    "created_at": "2022-01-10T10:00:00+05:30",
+    "updated_at": "2026-04-16T09:00:00+05:30"
+  }
+]

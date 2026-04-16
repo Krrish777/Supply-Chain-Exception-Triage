@@ -1,0 +1,33 @@
+{
+  "company_id": "comp_nimblefreight",
+  "name": "NimbleFreight Logistics Pvt. Ltd.",
+  "profile_summary": "Mid-size 3PL operator headquartered in Delhi NCR, covering the Delhi-Rajasthan-Gujarat corridor and South India (Tamil Nadu, Karnataka). Specializes in cold chain pharma distribution, perishable grocery logistics, and fashion retail last-mile. Known for reefer fleet strength and dark store replenishment expertise.",
+  "num_trucks": 45,
+  "num_employees": 120,
+  "regions_of_operation": [
+    "delhi_ncr",
+    "rajasthan",
+    "gujarat",
+    "tamil_nadu",
+    "karnataka"
+  ],
+  "carriers": [
+    "Delhivery",
+    "Rivigo",
+    "Blue Dart",
+    "IntrCity SmartBus Cargo",
+    "VRL Logistics"
+  ],
+  "customer_portfolio": {
+    "d2c_percentage": 0.25,
+    "b2b_percentage": 0.35,
+    "b2b_enterprise_percentage": 0.40,
+    "top_customers": [
+      "MediQuick Pharma",
+      "FreshKart Groceries",
+      "StyleVerse Fashion"
+    ]
+  },
+  "avg_daily_revenue_inr": 3500000,
+  "active": true
+}

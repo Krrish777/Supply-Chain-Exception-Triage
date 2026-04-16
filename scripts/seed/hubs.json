@@ -1,0 +1,314 @@
+[
+  {
+    "hub_id": "hub_mumbai",
+    "hub_name": "Mumbai Logistics Hub",
+    "city": "Mumbai",
+    "hub_type": "major",
+    "capacity_containers_per_day": 500,
+    "current_utilization_pct": 78,
+    "congestion_level": "HIGH",
+    "time_windows": [
+      {
+        "window_label": "next_24h",
+        "utilization_pct": 84,
+        "pending_shipments": 312
+      },
+      {
+        "window_label": "24_to_48h",
+        "utilization_pct": 76,
+        "pending_shipments": 258
+      },
+      {
+        "window_label": "48_to_72h",
+        "utilization_pct": 61,
+        "pending_shipments": 198
+      }
+    ]
+  },
+  {
+    "hub_id": "hub_pune",
+    "hub_name": "Pune Distribution Centre",
+    "city": "Pune",
+    "hub_type": "distribution",
+    "capacity_containers_per_day": 200,
+    "current_utilization_pct": 65,
+    "congestion_level": "MODERATE",
+    "time_windows": [
+      {
+        "window_label": "next_24h",
+        "utilization_pct": 71,
+        "pending_shipments": 98
+      },
+      {
+        "window_label": "24_to_48h",
+        "utilization_pct": 62,
+        "pending_shipments": 84
+      },
+      {
+        "window_label": "48_to_72h",
+        "utilization_pct": 48,
+        "pending_shipments": 62
+      }
+    ]
+  },
+  {
+    "hub_id": "hub_bangalore",
+    "hub_name": "Bangalore Distribution Centre",
+    "city": "Bangalore",
+    "hub_type": "distribution",
+    "capacity_containers_per_day": 300,
+    "current_utilization_pct": 55,
+    "congestion_level": "MODERATE",
+    "time_windows": [
+      {
+        "window_label": "next_24h",
+        "utilization_pct": 60,
+        "pending_shipments": 142
+      },
+      {
+        "window_label": "24_to_48h",
+        "utilization_pct": 55,
+        "pending_shipments": 128
+      },
+      {
+        "window_label": "48_to_72h",
+        "utilization_pct": 44,
+        "pending_shipments": 101
+      }
+    ]
+  },
+  {
+    "hub_id": "hub_delhi",
+    "hub_name": "Delhi NCR Logistics Hub",
+    "city": "Delhi",
+    "hub_type": "major",
+    "capacity_containers_per_day": 600,
+    "current_utilization_pct": 72,
+    "congestion_level": "HIGH",
+    "time_windows": [
+      {
+        "window_label": "next_24h",
+        "utilization_pct": 79,
+        "pending_shipments": 374
+      },
+      {
+        "window_label": "24_to_48h",
+        "utilization_pct": 70,
+        "pending_shipments": 312
+      },
+      {
+        "window_label": "48_to_72h",
+        "utilization_pct": 58,
+        "pending_shipments": 241
+      }
+    ]
+  },
+  {
+    "hub_id": "hub_jaipur",
+    "hub_name": "Jaipur Transit Hub",
+    "city": "Jaipur",
+    "hub_type": "transit",
+    "capacity_containers_per_day": 150,
+    "current_utilization_pct": 40,
+    "congestion_level": "LOW",
+    "time_windows": [
+      {
+        "window_label": "next_24h",
+        "utilization_pct": 44,
+        "pending_shipments": 51
+      },
+      {
+        "window_label": "24_to_48h",
+        "utilization_pct": 39,
+        "pending_shipments": 44
+      },
+      {
+        "window_label": "48_to_72h",
+        "utilization_pct": 31,
+        "pending_shipments": 36
+      }
+    ]
+  },
+  {
+    "hub_id": "hub_ahmedabad",
+    "hub_name": "Ahmedabad Regional Hub",
+    "city": "Ahmedabad",
+    "hub_type": "regional",
+    "capacity_containers_per_day": 250,
+    "current_utilization_pct": 60,
+    "congestion_level": "MODERATE",
+    "time_windows": [
+      {
+        "window_label": "next_24h",
+        "utilization_pct": 65,
+        "pending_shipments": 128
+      },
+      {
+        "window_label": "24_to_48h",
+        "utilization_pct": 58,
+        "pending_shipments": 112
+      },
+      {
+        "window_label": "48_to_72h",
+        "utilization_pct": 47,
+        "pending_shipments": 89
+      }
+    ]
+  },
+  {
+    "hub_id": "hub_chennai",
+    "hub_name": "Chennai Regional Hub",
+    "city": "Chennai",
+    "hub_type": "regional",
+    "capacity_containers_per_day": 250,
+    "current_utilization_pct": 45,
+    "congestion_level": "LOW",
+    "time_windows": [
+      {
+        "window_label": "next_24h",
+        "utilization_pct": 50,
+        "pending_shipments": 98
+      },
+      {
+        "window_label": "24_to_48h",
+        "utilization_pct": 44,
+        "pending_shipments": 84
+      },
+      {
+        "window_label": "48_to_72h",
+        "utilization_pct": 36,
+        "pending_shipments": 67
+      }
+    ]
+  },
+  {
+    "hub_id": "hub_lonavala_transit",
+    "hub_name": "Lonavala Transit Point",
+    "city": "Lonavala",
+    "hub_type": "transit",
+    "capacity_containers_per_day": 60,
+    "current_utilization_pct": 25,
+    "congestion_level": "LOW",
+    "time_windows": [
+      {
+        "window_label": "next_24h",
+        "utilization_pct": 30,
+        "pending_shipments": 14
+      },
+      {
+        "window_label": "24_to_48h",
+        "utilization_pct": 22,
+        "pending_shipments": 10
+      },
+      {
+        "window_label": "48_to_72h",
+        "utilization_pct": 18,
+        "pending_shipments": 8
+      }
+    ]
+  },
+  {
+    "hub_id": "hub_hubli_transit",
+    "hub_name": "Hubli Transit Point",
+    "city": "Hubli",
+    "hub_type": "transit",
+    "capacity_containers_per_day": 60,
+    "current_utilization_pct": 35,
+    "congestion_level": "LOW",
+    "time_windows": [
+      {
+        "window_label": "next_24h",
+        "utilization_pct": 38,
+        "pending_shipments": 18
+      },
+      {
+        "window_label": "24_to_48h",
+        "utilization_pct": 32,
+        "pending_shipments": 15
+      },
+      {
+        "window_label": "48_to_72h",
+        "utilization_pct": 26,
+        "pending_shipments": 12
+      }
+    ]
+  },
+  {
+    "hub_id": "hub_udaipur_transit",
+    "hub_name": "Udaipur Transit Point",
+    "city": "Udaipur",
+    "hub_type": "transit",
+    "capacity_containers_per_day": 70,
+    "current_utilization_pct": 28,
+    "congestion_level": "LOW",
+    "time_windows": [
+      {
+        "window_label": "next_24h",
+        "utilization_pct": 32,
+        "pending_shipments": 17
+      },
+      {
+        "window_label": "24_to_48h",
+        "utilization_pct": 25,
+        "pending_shipments": 13
+      },
+      {
+        "window_label": "48_to_72h",
+        "utilization_pct": 20,
+        "pending_shipments": 10
+      }
+    ]
+  },
+  {
+    "hub_id": "hub_vellore_transit",
+    "hub_name": "Vellore Transit Point",
+    "city": "Vellore",
+    "hub_type": "transit",
+    "capacity_containers_per_day": 65,
+    "current_utilization_pct": 22,
+    "congestion_level": "LOW",
+    "time_windows": [
+      {
+        "window_label": "next_24h",
+        "utilization_pct": 26,
+        "pending_shipments": 13
+      },
+      {
+        "window_label": "24_to_48h",
+        "utilization_pct": 20,
+        "pending_shipments": 10
+      },
+      {
+        "window_label": "48_to_72h",
+        "utilization_pct": 16,
+        "pending_shipments": 8
+      }
+    ]
+  },
+  {
+    "hub_id": "hub_kolhapur",
+    "hub_name": "Kolhapur Transit Point",
+    "city": "Kolhapur",
+    "hub_type": "transit",
+    "capacity_containers_per_day": 80,
+    "current_utilization_pct": 30,
+    "congestion_level": "LOW",
+    "time_windows": [
+      {
+        "window_label": "next_24h",
+        "utilization_pct": 35,
+        "pending_shipments": 22
+      },
+      {
+        "window_label": "24_to_48h",
+        "utilization_pct": 28,
+        "pending_shipments": 17
+      },
+      {
+        "window_label": "48_to_72h",
+        "utilization_pct": 21,
+        "pending_shipments": 13
+      }
+    ]
+  }
+]
