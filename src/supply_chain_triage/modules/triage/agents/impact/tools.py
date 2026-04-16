@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from google.adk.tools import ToolContext  # type: ignore[attr-defined]  # noqa: TC002
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 from supply_chain_triage.core.config import get_firestore_client
 from supply_chain_triage.utils.logging import get_logger, log_firestore_op
@@ -61,8 +62,8 @@ async def get_affected_shipments(
         db = get_firestore_client()
         query = (
             db.collection(_SHIPMENTS_COLLECTION)
-            .where(filter=("status", "==", "in_transit"))
-            .where(filter=(scope_type, "==", scope_value))
+            .where(filter=FieldFilter("status", "==", "in_transit"))
+            .where(filter=FieldFilter(scope_type, "==", scope_value))
         )
         docs = [doc async for doc in query.stream()]
 
