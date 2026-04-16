@@ -13,17 +13,13 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import FastAPI
-from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
-from google.genai import types as genai_types
 
 from supply_chain_triage.modules.triage.agents.classifier.agent import create_classifier
 from supply_chain_triage.modules.triage.agents.classifier.schemas import (
     ClassifierInput,  # noqa: TC001 — runtime-needed by FastAPI body validation
 )
-from supply_chain_triage.utils.logging import get_logger
-
-logger = get_logger(__name__)
+from supply_chain_triage.runners._shared import AgentEndpointConfig, run_agent_endpoint
 
 app = FastAPI(title="Classifier API", version="0.1.0")
 _session_service = InMemorySessionService()  # type: ignore[no-untyped-call]
@@ -41,49 +37,17 @@ async def classify_exception(*, payload: ClassifierInput) -> dict[str, Any]:
     Returns:
         Classification result dict from the agent.
     """
-    classifier = create_classifier()
-    runner = Runner(
-        agent=classifier,
-        app_name=_APP_NAME,
+    result = await run_agent_endpoint(
+        agent=create_classifier(),
         session_service=_session_service,
-    )
-
-    session = await _session_service.create_session(
-        app_name=_APP_NAME,
-        user_id=_USER_ID,
-    )
-
-    result_text = ""
-    async for event in runner.run_async(
-        user_id=_USER_ID,
-        session_id=session.id,
-        new_message=genai_types.Content(
-            role="user",
-            parts=[
-                genai_types.Part.from_text(
-                    text=f"Classify exception with event_id: {payload.event_id}",
-                )
-            ],
+        config=AgentEndpointConfig(
+            app_name=_APP_NAME,
+            user_id=_USER_ID,
+            message_text=f"Classify exception with event_id: {payload.event_id}",
+            state_key_map={"classification": "triage:classification"},
         ),
-    ):
-        if event.is_final_response() and event.content and event.content.parts:
-            result_text = event.content.parts[0].text or ""
-
-    # Also pull the structured classification from state if available.
-    updated_session = await _session_service.get_session(
-        app_name=_APP_NAME,
-        user_id=_USER_ID,
-        session_id=session.id,
     )
-    classification = None
-    if updated_session:
-        classification = updated_session.state.get("triage:classification")
-
-    return {
-        "event_id": payload.event_id,
-        "classification": classification,
-        "raw_response": result_text,
-    }
+    return {"event_id": payload.event_id, **result}
 
 
 @app.get("/health")

@@ -19,6 +19,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from supply_chain_triage.modules.triage.models.common_types import Severity  # noqa: TC001
+
 
 class ShipmentImpact(BaseModel):
     """Impact assessment for a single affected shipment."""
@@ -41,7 +43,7 @@ class ShipmentImpact(BaseModel):
     deadline: datetime = Field(..., description="Deadline (tz-aware)")
     hours_until_deadline: float
 
-    sla_breach_risk: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    sla_breach_risk: Severity
     churn_risk: Literal["LOW", "MEDIUM", "HIGH"]
     penalty_amount_inr: int | None = Field(None, ge=0)
 

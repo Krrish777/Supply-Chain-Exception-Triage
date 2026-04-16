@@ -1,10 +1,7 @@
-"""FastAPI application factory + CLI entry point.
+"""FastAPI application factory and CLI entry point.
 
-Wired per Sprint 0 PRD v2 §7. The canonical middleware order is documented
-inline below — reordering the ``add_middleware`` calls causes Risk 11 (401
-responses skip the audit log). Test 4.2 is the regression guard.
-
-CLI entry: ``supply-chain-triage`` (declared in ``pyproject.toml``) → ``cli()``.
+The middleware stack must stay in the documented order so audit logging wraps
+auth failures and request sanitization runs before handlers.
 """
 
 from __future__ import annotations
@@ -26,30 +23,9 @@ _PUBLIC_PATHS: frozenset[str] = frozenset(
 def create_app() -> FastAPI:
     """Build the FastAPI app with the canonical middleware stack.
 
-    **Middleware ordering is load-bearing (Risk 11).** Starlette applies
-    middleware in LIFO order — the LAST ``add_middleware`` call becomes the
-    OUTERMOST wrapper on the request. We require ``AuditLogMiddleware`` to
-    be outermost so every response (including 401s from
-    ``FirebaseAuthMiddleware``) carries a ``correlation_id`` in its audit
-    trail. Test 4.2 in the Sprint 0 test-plan is the regression guard.
-
-    **Canonical order (outer → inner as each request flows in):**
-
-    1. ``AuditLogMiddleware`` — first to see every request; last to see
-       every response. Generates ``correlation_id``.
-    2. ``FirebaseAuthMiddleware`` — rejects unauthenticated requests
-       (except ``_PUBLIC_PATHS``).
-    3. ``InputSanitizationMiddleware`` — strips XSS + control chars before
-       handlers read the body.
-    4. ``CORSMiddleware`` (via ``add_cors_middleware``) — closest to
-       handlers; handles preflight without auth.
-
-    Do NOT reorder. If you add a new middleware, document its position in
-    this comment block AND add a test that asserts ``correlation_id``
-    survives the path.
-
-    Returns:
-        Configured FastAPI instance ready for uvicorn / ADK web.
+    The order is load-bearing: CORS runs closest to handlers, then input
+    sanitization, then Firebase auth, and AuditLog stays outermost so 401s
+    still emit a ``correlation_id``.
     """
     app = FastAPI(
         title="Supply Chain Exception Triage",

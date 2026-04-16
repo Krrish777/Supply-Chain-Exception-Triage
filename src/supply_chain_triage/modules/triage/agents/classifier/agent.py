@@ -22,10 +22,8 @@ from supply_chain_triage.modules.triage.agents.classifier.tools import (
     get_company_profile,
     get_exception_event,
 )
-from supply_chain_triage.modules.triage.models.classification import (
-    ClassificationResult,
-    Severity,
-)
+from supply_chain_triage.modules.triage.models.classification import ClassificationResult
+from supply_chain_triage.modules.triage.models.common_types import Severity
 from supply_chain_triage.utils.logging import get_logger, log_agent_invocation
 
 if TYPE_CHECKING:

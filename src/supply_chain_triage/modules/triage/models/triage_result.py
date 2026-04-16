@@ -6,30 +6,20 @@ per ``docs/research/Supply-Chain-Agent-Spec-Coordinator.md`` Rule F.
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from supply_chain_triage.modules.triage.models.classification import (  # noqa: TC001 — runtime-needed by Pydantic
     ClassificationResult,
 )
+from supply_chain_triage.modules.triage.models.common_types import (  # noqa: TC001
+    EscalationPriority,
+    TriageStatus,
+)
 from supply_chain_triage.modules.triage.models.impact import (  # noqa: TC001 — runtime-needed by Pydantic
     ImpactResult,
 )
-
-TriageStatus = Literal[
-    "complete",
-    "partial",
-    "escalated_to_human",
-    "escalated_to_human_safety",
-]
-
-EscalationPriority = Literal[
-    "standard",
-    "reputation_risk",
-    "safety",
-    "regulatory",
-]
 
 
 class TriageResult(BaseModel):

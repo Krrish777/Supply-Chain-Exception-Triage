@@ -1,23 +1,7 @@
-"""Audit logging middleware + module-level `audit_event` helper.
+"""Audit logging middleware and ``audit_event`` helper.
 
-Emits structured JSON via the project's canonical logger
-(``supply_chain_triage.utils.logging.get_logger``) with a per-request
-``correlation_id`` bound through ``structlog.contextvars``. AuditLogMiddleware
-wraps every request — including auth failures. The Risk 11 regression guard
-(test-plan Test 4.2) verifies that when FirebaseAuthMiddleware returns 401,
-the audit log still carries a ``correlation_id``. If this guard breaks, it
-means someone re-ordered the middleware stack so AuditLog is no longer
-outermost.
-
-Canonical middleware ordering in ``main.py::create_app()``:
-
-    add_cors_middleware(app, ...)        # first added → INNERMOST
-    app.add_middleware(InputSanitizationMiddleware)
-    app.add_middleware(FirebaseAuthMiddleware, ...)
-    app.add_middleware(AuditLogMiddleware) # last added → OUTERMOST
-
-``audit_event`` is a module-level helper so tools / runners / agents can emit
-structured audit lines outside the HTTP middleware context.
+Binds a per-request ``correlation_id`` into structlog contextvars so every
+request log line carries the same request ID.
 """
 
 from __future__ import annotations
@@ -44,31 +28,12 @@ _logger = get_logger("audit")
 
 
 def audit_event(event: str, **kwargs: Any) -> None:
-    """Emit a structured audit event.
-
-    Usable from anywhere — tools, agents, runners, middleware. The resulting
-    log line is a JSON object with ``event=<event>`` plus all kwargs, routed
-    through ``utils.logging.get_logger`` so PII redaction, request_id merge,
-    and the stdlib-bridged handlers all apply uniformly.
-
-    Args:
-        event: Event name (e.g. ``"shipment.read"``, ``"auth.failure"``).
-        **kwargs: Structured context — ``correlation_id``, ``user_id``,
-            ``company_id``, ``exception_id``, etc. Never pass raw prompt
-            text or secrets (``.claude/rules/observability.md`` §5).
-    """
+    """Emit a structured audit event through the canonical logger."""
     _logger.info(event, **kwargs)
 
 
 class AuditLogMiddleware(BaseHTTPMiddleware):
-    """Wraps every request with a ``correlation_id`` + start/end audit events.
-
-    Binds ``correlation_id`` via ``structlog.contextvars`` so every downstream
-    ``get_logger(...).info(...)`` call in the same request carries it
-    automatically — no manual threading. Also sets the raw ``request_id_var``
-    for stdlib-compat with uvicorn access logs. See
-    ``docs/research/Supply-Chain-Zettel-Structlog-Async-Contextvars``.
-    """
+    """Wrap every request with a ``correlation_id`` and start/end audit events."""
 
     async def dispatch(
         self,
@@ -79,13 +44,11 @@ class AuditLogMiddleware(BaseHTTPMiddleware):
         correlation_id = generate_request_id()
         request.state.correlation_id = correlation_id
 
-        # Fresh per-request contextvars (Starlette may reuse async tasks).
         structlog.contextvars.clear_contextvars()
         structlog.contextvars.bind_contextvars(
             correlation_id=correlation_id,
             request_id=correlation_id,
         )
-        # Stdlib-compat: uvicorn access logs read from the raw ContextVar.
         request_id_token = request_id_var.set(correlation_id)
 
         audit_event(

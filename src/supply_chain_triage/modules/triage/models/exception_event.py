@@ -6,19 +6,11 @@ Source of truth: ``docs/research/Supply-Chain-Agent-Spec-Coordinator.md``.
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003 — runtime-needed by Pydantic validation
-from typing import Any, Literal
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-SourceChannel = Literal[
-    "whatsapp_voice",
-    "whatsapp_text",
-    "email",
-    "phone_call_transcript",
-    "carrier_portal_alert",
-    "customer_escalation",
-    "manual_entry",
-]
+from supply_chain_triage.modules.triage.models.common_types import SourceChannel  # noqa: TC001
 
 
 class ExceptionEvent(BaseModel):

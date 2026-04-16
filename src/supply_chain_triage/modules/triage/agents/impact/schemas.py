@@ -2,12 +2,6 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from supply_chain_triage.modules.triage.models.api_envelopes import TriageAgentInput
 
-
-class ImpactInput(BaseModel):
-    """Input payload for the Impact agent test runner."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    event_id: str = Field(..., min_length=1, description="Exception event ID to assess impact for")
+ImpactInput = TriageAgentInput

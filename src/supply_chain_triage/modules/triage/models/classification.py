@@ -14,6 +14,12 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from supply_chain_triage.modules.triage.models.common_types import Severity  # noqa: TC001
+from supply_chain_triage.modules.triage.models.shared_models import (  # noqa: TC001
+    KeyFact,
+    SafetyEscalation,
+)
+
 
 class ExceptionType(StrEnum):
     """6 exception categories per Classifier spec §28-63."""
@@ -24,34 +30,6 @@ class ExceptionType(StrEnum):
     customer_escalation = "customer_escalation"
     external_disruption = "external_disruption"
     safety_incident = "safety_incident"
-
-
-class Severity(StrEnum):
-    """4 severity levels. Classifier's severity validator can only escalate, never downgrade."""
-
-    LOW = "LOW"
-    MEDIUM = "MEDIUM"
-    HIGH = "HIGH"
-    CRITICAL = "CRITICAL"
-
-
-class KeyFact(BaseModel):
-    """Single extracted fact from exception content."""
-
-    model_config = ConfigDict()
-
-    key: str = Field(..., description="Fact name (e.g. carrier_name, location)")
-    value: str = Field(..., description="Extracted value")
-
-
-class SafetyEscalation(BaseModel):
-    """Safety escalation details when safety keywords are detected."""
-
-    model_config = ConfigDict()
-
-    trigger_type: str = Field(..., description="keyword_detection or classification")
-    matched_terms: list[str] = Field(default_factory=list, description="Safety keywords found")
-    escalation_reason: str = Field(..., description="Why this was escalated")
 
 
 class ClassificationResult(BaseModel):

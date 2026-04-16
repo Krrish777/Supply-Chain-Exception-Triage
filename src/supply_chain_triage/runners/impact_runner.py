@@ -13,17 +13,13 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import FastAPI
-from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
-from google.genai import types as genai_types
 
 from supply_chain_triage.modules.triage.agents.impact.agent import create_impact
 from supply_chain_triage.modules.triage.agents.impact.schemas import (
     ImpactInput,  # noqa: TC001 — runtime-needed by FastAPI body validation
 )
-from supply_chain_triage.utils.logging import get_logger
-
-logger = get_logger(__name__)
+from supply_chain_triage.runners._shared import AgentEndpointConfig, run_agent_endpoint
 
 app = FastAPI(title="Impact API", version="0.1.0")
 _session_service = InMemorySessionService()  # type: ignore[no-untyped-call]
@@ -41,52 +37,20 @@ async def assess_impact(*, payload: ImpactInput) -> dict[str, Any]:
     Returns:
         Impact assessment result dict from the agent.
     """
-    impact_agent = create_impact()
-    runner = Runner(
-        agent=impact_agent,
-        app_name=_APP_NAME,
+    result = await run_agent_endpoint(
+        agent=create_impact(),
         session_service=_session_service,
-    )
-
-    session = await _session_service.create_session(
-        app_name=_APP_NAME,
-        user_id=_USER_ID,
-    )
-
-    result_text = ""
-    async for event in runner.run_async(
-        user_id=_USER_ID,
-        session_id=session.id,
-        new_message=genai_types.Content(
-            role="user",
-            parts=[
-                genai_types.Part.from_text(
-                    text=f"Assess impact for exception with event_id: {payload.event_id}",
-                )
-            ],
+        config=AgentEndpointConfig(
+            app_name=_APP_NAME,
+            user_id=_USER_ID,
+            message_text=f"Assess impact for exception with event_id: {payload.event_id}",
+            state_key_map={
+                "impact": "triage:impact",
+                "impact_weights": "triage:impact_weights",
+            },
         ),
-    ):
-        if event.is_final_response() and event.content and event.content.parts:
-            result_text = event.content.parts[0].text or ""
-
-    # Also pull the structured impact and weights from state if available.
-    updated_session = await _session_service.get_session(
-        app_name=_APP_NAME,
-        user_id=_USER_ID,
-        session_id=session.id,
     )
-    impact = None
-    impact_weights = None
-    if updated_session:
-        impact = updated_session.state.get("triage:impact")
-        impact_weights = updated_session.state.get("triage:impact_weights")
-
-    return {
-        "event_id": payload.event_id,
-        "impact": impact,
-        "impact_weights": impact_weights,
-        "raw_response": result_text,
-    }
+    return {"event_id": payload.event_id, **result}
 
 
 @app.get("/health")

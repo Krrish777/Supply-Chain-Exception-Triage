@@ -28,14 +28,12 @@ from supply_chain_triage.modules.triage.agents.impact.tools import (
     get_shipment_details,
 )
 from supply_chain_triage.modules.triage.models.impact import ImpactResult
-from supply_chain_triage.utils.logging import get_logger, log_agent_invocation
+from supply_chain_triage.utils.logging import log_agent_invocation
 
 if TYPE_CHECKING:
     from google.adk.agents.callback_context import CallbackContext
     from google.adk.models.llm_request import LlmRequest
     from google.adk.models.llm_response import LlmResponse
-
-logger = get_logger(__name__)
 
 _AGENT_NAME = "impact"
 _MODEL = "gemini-2.5-flash"
@@ -144,95 +142,74 @@ def _apply_priority_weights(
     raw_json: str,
 ) -> None:
     """Compute 5-factor priority scores, apply hard overrides, re-sort."""
-    try:
-        data: dict[str, Any] = json.loads(raw_json)
-        shipments: list[dict[str, Any]] = data.get("affected_shipments", [])
-        if not shipments:
-            return
+    data: dict[str, Any] = json.loads(raw_json)
+    shipments: list[dict[str, Any]] = data.get("affected_shipments", [])
+    if not shipments:
+        return
 
-        # --- normalisation denominators (avoid division by zero) ---
-        max_value = max((s.get("value_inr", 0) for s in shipments), default=1) or 1
-        max_penalty = max((s.get("penalty_amount_inr", 0) or 0 for s in shipments), default=1) or 1
+    max_value = max((s.get("value_inr", 0) for s in shipments), default=1) or 1
+    max_penalty = max((s.get("penalty_amount_inr", 0) or 0 for s in shipments), default=1) or 1
 
-        # --- score each shipment ---
-        weights_record: dict[str, dict[str, Any]] = {}
-        for shipment in shipments:
-            sid = shipment.get("shipment_id", "")
+    weights_record: dict[str, dict[str, Any]] = {}
+    for shipment in shipments:
+        sid = shipment.get("shipment_id", "")
 
-            # Factor 1: value (normalised)
-            value_norm = shipment.get("value_inr", 0) / max_value
+        value_norm = shipment.get("value_inr", 0) / max_value
+        penalty_norm = (shipment.get("penalty_amount_inr", 0) or 0) / max_penalty
 
-            # Factor 2: penalty (normalised)
-            penalty_norm = (shipment.get("penalty_amount_inr", 0) or 0) / max_penalty
+        churn_base = _CHURN_BASE.get(shipment.get("churn_risk", "MEDIUM"), 0.5)
+        tier = shipment.get("customer_tier", "")
+        churn_score = min(churn_base + _TIER_BONUS.get(tier, 0.0), 1.0)
 
-            # Factor 3: churn risk + tier bonus
-            churn_base = _CHURN_BASE.get(shipment.get("churn_risk", "MEDIUM"), 0.5)
-            tier = shipment.get("customer_tier", "")
-            churn_score = min(churn_base + _TIER_BONUS.get(tier, 0.0), 1.0)
+        hub_risk = data.get("hub_congestion_risk", "LOW") or "LOW"
+        facility_score = _CONGESTION_SCORE.get(hub_risk, 0.2)
 
-            # Factor 4: facility / hub congestion
-            hub_risk = data.get("hub_congestion_risk", "LOW") or "LOW"
-            facility_score = _CONGESTION_SCORE.get(hub_risk, 0.2)
+        remaining = shipment.get("remaining_route_legs")
+        current = shipment.get("current_route_leg")
+        if remaining is not None and current is not None and (remaining + current) > 0:
+            cascade_score = remaining / (remaining + current)
+        else:
+            cascade_score = 0.5
 
-            # Factor 5: cascade (remaining route legs / total legs)
-            remaining = shipment.get("remaining_route_legs")
-            current = shipment.get("current_route_leg")
-            if remaining is not None and current is not None and (remaining + current) > 0:
-                cascade_score = remaining / (remaining + current)
-            else:
-                cascade_score = 0.5
-
-            weighted = (
-                _W_VALUE * value_norm
-                + _W_PENALTY * penalty_norm
-                + _W_CHURN * churn_score
-                + _W_FACILITY * facility_score
-                + _W_CASCADE * cascade_score
-            )
-
-            # --- hard rule overrides (stacking) ---
-            if shipment.get("public_facing_deadline"):
-                weighted += _BUMP_PUBLIC_FACING
-
-            hours = shipment.get("hours_until_deadline")
-            if hours is not None:
-                if hours < _DEADLINE_URGENT_HOURS:
-                    weighted += _BUMP_URGENT_DEADLINE
-                if hours < _DEADLINE_CRITICAL_HOURS:
-                    weighted += _BUMP_CRITICAL_DEADLINE
-
-            weighted = min(max(weighted, 0.0), _SCORE_MAX)
-
-            weights_record[sid] = {
-                "value": round(value_norm, 4),
-                "penalty": round(penalty_norm, 4),
-                "churn": round(churn_score, 4),
-                "facility_impact": round(facility_score, 4),
-                "cascade": round(cascade_score, 4),
-                "hard_overrides_applied": _hard_override_labels(shipment),
-                "final_score": round(weighted, 4),
-            }
-
-        # --- re-sort priority order by descending score ---
-        sorted_ids = sorted(
-            weights_record,
-            key=lambda sid: weights_record[sid]["final_score"],
-            reverse=True,
+        weighted = (
+            _W_VALUE * value_norm
+            + _W_PENALTY * penalty_norm
+            + _W_CHURN * churn_score
+            + _W_FACILITY * facility_score
+            + _W_CASCADE * cascade_score
         )
-        data["recommended_priority_order"] = sorted_ids
 
-        # Store weights in a SEPARATE state key (not inside ImpactResult).
-        callback_context.state["triage:impact_weights"] = json.dumps(weights_record)
+        if shipment.get("public_facing_deadline"):
+            weighted += _BUMP_PUBLIC_FACING
 
-        # Write modified impact back.
-        callback_context.state["triage:impact"] = json.dumps(data)
+        hours = shipment.get("hours_until_deadline")
+        if hours is not None:
+            if hours < _DEADLINE_URGENT_HOURS:
+                weighted += _BUMP_URGENT_DEADLINE
+            if hours < _DEADLINE_CRITICAL_HOURS:
+                weighted += _BUMP_CRITICAL_DEADLINE
 
-    except (json.JSONDecodeError, TypeError, KeyError, ValueError):
-        # If anything goes wrong, log and preserve the LLM's original ordering.
-        logger.warning(
-            "impact_weight_computation_failed",
-            agent_name=_AGENT_NAME,
-        )
+        weighted = min(max(weighted, 0.0), _SCORE_MAX)
+
+        weights_record[sid] = {
+            "value": round(value_norm, 4),
+            "penalty": round(penalty_norm, 4),
+            "churn": round(churn_score, 4),
+            "facility_impact": round(facility_score, 4),
+            "cascade": round(cascade_score, 4),
+            "hard_overrides_applied": _hard_override_labels(shipment),
+            "final_score": round(weighted, 4),
+        }
+
+    sorted_ids = sorted(
+        weights_record,
+        key=lambda sid: weights_record[sid]["final_score"],
+        reverse=True,
+    )
+    data["recommended_priority_order"] = sorted_ids
+
+    callback_context.state["triage:impact_weights"] = json.dumps(weights_record)
+    callback_context.state["triage:impact"] = json.dumps(data)
 
 
 def _hard_override_labels(shipment: dict[str, Any]) -> list[str]:

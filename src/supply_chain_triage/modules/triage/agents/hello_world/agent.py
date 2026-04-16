@@ -1,21 +1,8 @@
-"""Hello-world ADK baseline agent.
+"""Hello-world ADK baseline agent used to smoke-test the ADK toolchain.
 
-Per Sprint 0 PRD v2 §2.7 + §17 item #3: validates the end-to-end ADK toolchain.
 ``adk web`` picks up ``root_agent`` and the agent responds to greetings in the
-browser UI. Once this works, the real feature agents (Classifier Sprint 1,
-Impact Sprint 2, Coordinator Sprint 3) extend the same pattern.
-
-Architectural notes:
-- Gemini model pinned to ``gemini-2.5-flash`` per ADR-001. Do NOT "upgrade" to
-  a newer model without a follow-up ADR.
-- Instruction text is read from the co-located ``prompts/hello_world.md`` at
-  module import — keeps prompt + code edit-atomic without a build step.
-- This file is the single approved spot for ``google.adk.*`` imports in this
-  agent subpackage (per ``.claude/rules/imports.md`` + ruff ``TID251``
-  per-file-ignore for ``modules/*/agents/**/agent.py``).
-- Callbacks wire ``log_agent_invocation`` per ``.claude/rules/logging.md`` §4
-  (mandatory duration + token attribution). State uses the ``temp:`` prefix so
-  stopwatch keys never leak into persisted session state (agents.md §2).
+browser UI. The model and prompt live next to the agent so the baseline stays
+easy to inspect and edit.
 """
 
 from __future__ import annotations
@@ -38,8 +25,7 @@ _INSTRUCTION = (Path(__file__).parent / "prompts" / "hello_world.md").read_text(
     encoding="utf-8",
 )
 
-# Keys scoped to this agent to avoid collisions when future agents (Classifier,
-# Impact) add their own timers in a SequentialAgent pipeline.
+# Agent-local state keys avoid collisions in future SequentialAgent pipelines.
 _STATE_START = f"temp:{_AGENT_NAME}:start_perf_ns"
 _STATE_TOKENS_IN = f"temp:{_AGENT_NAME}:tokens_in"
 _STATE_TOKENS_OUT = f"temp:{_AGENT_NAME}:tokens_out"
