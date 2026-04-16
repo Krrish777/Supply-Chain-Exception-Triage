@@ -103,7 +103,7 @@ def _after_model(
 
 
 def _clear_history(
-    _callback_context: CallbackContext,
+    callback_context: CallbackContext,  # noqa: ARG001
     llm_request: LlmRequest,
 ) -> None:
     """Clear conversation history for the formatter to save tokens.
@@ -214,12 +214,13 @@ def create_classifier() -> SequentialAgent:
         name="classifier_formatter",
         model=_MODEL,
         description="Classifies the exception into type, severity, and extracts key facts.",
-        instruction=_FORMATTER_INSTRUCTION + "\n\nException briefing:\n{triage:raw_exception_data}",
+        instruction="Classify this exception:\n\n{triage:raw_exception_data}\n\n"
+        + _FORMATTER_INSTRUCTION,
         output_schema=ClassificationResult,
         output_key="triage:classification",
         include_contents="none",
         generate_content_config=genai_types.GenerateContentConfig(
-            thinking_config=genai_types.ThinkingConfig(thinking_budget=0),
+            thinking_config=genai_types.ThinkingConfig(thinking_budget=1024),
             temperature=0.0,
         ),
         before_model_callback=_clear_history,

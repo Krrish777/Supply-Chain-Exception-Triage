@@ -6,15 +6,14 @@ Per ``.claude/rules/tools.md``: async for I/O, return
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
+
+from google.adk.tools import ToolContext  # type: ignore[attr-defined]  # noqa: TC002
 
 from supply_chain_triage.core.config import get_firestore_client
 from supply_chain_triage.modules.triage.models.company_profile import CompanyProfile
 from supply_chain_triage.modules.triage.models.exception_event import ExceptionEvent
 from supply_chain_triage.utils.logging import get_logger, log_firestore_op
-
-if TYPE_CHECKING:
-    from google.adk.tools import ToolContext  # type: ignore[attr-defined]
 
 logger = get_logger(__name__)
 

@@ -2,12 +2,15 @@
 
 Taxonomy + severity enums sourced from
 ``docs/research/Supply-Chain-Agent-Spec-Classifier.md`` §28-63.
+
+Note: ``dict[str, Any]`` is not supported by Gemini's ``output_schema``
+(``additionalProperties`` rejected by the SDK). Key facts and safety
+escalation use flat Pydantic models instead. See googleapis/python-genai#1113.
 """
 
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -32,10 +35,31 @@ class Severity(StrEnum):
     CRITICAL = "CRITICAL"
 
 
+class KeyFact(BaseModel):
+    """Single extracted fact from exception content."""
+
+    model_config = ConfigDict()
+
+    key: str = Field(..., description="Fact name (e.g. carrier_name, location)")
+    value: str = Field(..., description="Extracted value")
+
+
+class SafetyEscalation(BaseModel):
+    """Safety escalation details when safety keywords are detected."""
+
+    model_config = ConfigDict()
+
+    trigger_type: str = Field(..., description="keyword_detection or classification")
+    matched_terms: list[str] = Field(default_factory=list, description="Safety keywords found")
+    escalation_reason: str = Field(..., description="Why this was escalated")
+
+
 class ClassificationResult(BaseModel):
     """Structured classification from the Classifier Agent."""
 
-    model_config = ConfigDict(extra="forbid", use_enum_values=True)
+    # NOTE: no extra="forbid" — Gemini API rejects additionalProperties in schema.
+    # Validation at API boundaries uses a separate model with extra="forbid".
+    model_config = ConfigDict(use_enum_values=True)
 
     exception_type: ExceptionType
     subtype: str = Field(..., min_length=1)
@@ -44,10 +68,10 @@ class ClassificationResult(BaseModel):
         None, ge=0, description="Estimated hours until situation becomes critical"
     )
     confidence: float = Field(..., ge=0.0, le=1.0)
-    key_facts: dict[str, Any] = Field(
-        ..., description="Structured facts extracted from raw content"
+    key_facts: list[KeyFact] = Field(
+        default_factory=list, description="Structured facts extracted from raw content"
     )
     reasoning: str = Field(..., min_length=1, max_length=2000)
     requires_human_approval: bool = False
     tools_used: list[str] = Field(default_factory=list)
-    safety_escalation: dict[str, Any] | None = None
+    safety_escalation: SafetyEscalation | None = None

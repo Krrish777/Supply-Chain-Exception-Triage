@@ -58,24 +58,19 @@ context. When in doubt, err toward higher severity.
 
 # Key facts extraction
 
-Extract structured facts from the exception. Always attempt these common fields:
+Extract structured facts as a list of key-value pairs. Each fact has a `key`
+(fact name) and `value` (extracted value). Common keys to look for:
 
-- `carrier_name`: Name of the carrier involved (null if unknown)
-- `route_origin`: Origin city/location (null if unknown)
-- `route_destination`: Destination city/location (null if unknown)
-- `affected_shipment_count`: Number of shipments affected (null if unknown)
-- `estimated_delay_hours`: Estimated delay in hours (null if unknown)
-- `location`: Location where the exception occurred (null if unknown)
-
-Also extract type-specific facts when available:
-- For carrier issues: `vehicle_id`, `driver_name`, `alternate_carrier`
-- For route disruptions: `blocked_route`, `disruption_cause`, `expected_duration_hours`
-- For regulatory: `document_type`, `authority`, `deadline`
-- For customer escalations: `customer_name`, `complaint_type`, `sla_deadline`
+- `carrier_name`, `route_origin`, `route_destination`
+- `affected_shipment_count`, `estimated_delay_hours`, `location`
+- For carrier issues: `vehicle_id`, `disruption_cause`
+- For route disruptions: `blocked_route`, `expected_duration_hours`
+- For regulatory: `document_type`, `authority`
+- For customer escalations: `customer_name`, `complaint_type`
 - For external disruptions: `weather_type`, `affected_area`
-- For safety incidents: `incident_type`, `casualties`, `emergency_services_contacted`
+- For safety incidents: `incident_type`, `casualties`
 
-Use null for facts that cannot be determined from the available information.
+Only include facts you can extract from the briefing.
 
 # Confidence calibration
 
@@ -86,9 +81,9 @@ Use null for facts that cannot be determined from the available information.
 
 # Safety escalation
 
-When the raw content contains any of these indicators, include a
-`safety_escalation` dict with `trigger_type`, `matched_terms`, and
-`escalation_reason`:
+When the raw content contains safety indicators, include a
+`safety_escalation` object with `trigger_type`, `matched_terms` (list), and
+`escalation_reason`.
 
 Safety keywords: accident, injury, injured, death, killed, fatality, fire,
 spill, hazmat, hazardous, medical emergency, collapsed, hospitalized,
@@ -107,7 +102,6 @@ briefing.
 BlueDart truck BD-MH12-4521 broke down on the Mumbai-Pune Expressway near
 Lonavala at 06:30 IST. Driver reports engine failure. 12 packages onboard for
 delivery today. No injuries reported. Mechanic ETA 3 hours.
-Company: SwiftLogix, 15 trucks, avg daily revenue Rs 8 lakh.
 </input>
 <output>
 {
@@ -116,19 +110,19 @@ Company: SwiftLogix, 15 trucks, avg daily revenue Rs 8 lakh.
   "severity": "MEDIUM",
   "urgency_hours": 6,
   "confidence": 0.92,
-  "key_facts": {
-    "carrier_name": "BlueDart",
-    "vehicle_id": "BD-MH12-4521",
-    "route_origin": "Mumbai",
-    "route_destination": "Pune",
-    "location": "Lonavala, Mumbai-Pune Expressway",
-    "affected_shipment_count": "12",
-    "estimated_delay_hours": "3",
-    "disruption_cause": "engine failure"
-  },
-  "reasoning": "Vehicle breakdown on Mumbai-Pune route with 12 packages affected. Mechanic arriving in 3 hours. MEDIUM severity as no SLA breach is imminent and no safety concerns.",
+  "key_facts": [
+    {"key": "carrier_name", "value": "BlueDart"},
+    {"key": "vehicle_id", "value": "BD-MH12-4521"},
+    {"key": "route_origin", "value": "Mumbai"},
+    {"key": "route_destination", "value": "Pune"},
+    {"key": "location", "value": "Lonavala, Mumbai-Pune Expressway"},
+    {"key": "affected_shipment_count", "value": "12"},
+    {"key": "estimated_delay_hours", "value": "3"},
+    {"key": "disruption_cause", "value": "engine failure"}
+  ],
+  "reasoning": "Vehicle breakdown on Mumbai-Pune route with 12 packages affected. Mechanic arriving in 3 hours. MEDIUM severity — no SLA breach imminent, no safety concerns.",
   "requires_human_approval": false,
-  "tools_used": ["get_exception_event", "get_company_profile"],
+  "tools_used": [],
   "safety_escalation": null
 }
 </output>
@@ -139,7 +133,6 @@ Company: SwiftLogix, 15 trucks, avg daily revenue Rs 8 lakh.
 URGENT: Heavy monsoon flooding in Nhava Sheva port area since last night.
 Multiple container yards waterlogged. Access roads to JNPT blocked. Port
 operations suspended until further notice. Estimated 200+ containers affected.
-Company: SwiftLogix, operates Mumbai-Gujarat corridor.
 </input>
 <output>
 {
@@ -148,55 +141,15 @@ Company: SwiftLogix, operates Mumbai-Gujarat corridor.
   "severity": "HIGH",
   "urgency_hours": 4,
   "confidence": 0.95,
-  "key_facts": {
-    "carrier_name": null,
-    "route_origin": "Nhava Sheva",
-    "route_destination": null,
-    "location": "JNPT / Nhava Sheva port area",
-    "affected_shipment_count": "200+",
-    "estimated_delay_hours": null,
-    "weather_type": "monsoon flooding",
-    "affected_area": "Nhava Sheva port, JNPT access roads"
-  },
-  "reasoning": "Monsoon flooding causing port suspension at JNPT with 200+ containers affected. HIGH severity due to large-scale disruption and hub impact. Duration unknown.",
+  "key_facts": [
+    {"key": "location", "value": "JNPT / Nhava Sheva port area"},
+    {"key": "affected_shipment_count", "value": "200+"},
+    {"key": "weather_type", "value": "monsoon flooding"},
+    {"key": "affected_area", "value": "Nhava Sheva port, JNPT access roads"}
+  ],
+  "reasoning": "Monsoon flooding causing port suspension at JNPT with 200+ containers affected. HIGH severity due to large-scale hub disruption.",
   "requires_human_approval": false,
-  "tools_used": ["get_exception_event", "get_company_profile"],
-  "safety_escalation": null
-}
-</output>
-</example>
-
-<example>
-<input>
-From: Rajesh Kumar, VP Operations, MegaMart India
-Subject: FINAL WARNING - Contract Review
-
-This is our third escalation this month. Order #MM-2026-8834 was promised
-delivery by April 14th for our Diwali campaign pre-stock. It's April 16th and
-we still don't have the shipment. Our contract specifies Rs 50,000/day penalty
-for delays beyond 48 hours. We are seriously reconsidering our logistics
-partnership. Please resolve immediately or we will initiate contract termination.
-Company: SwiftLogix, MegaMart is a top B2B enterprise customer.
-</input>
-<output>
-{
-  "exception_type": "customer_escalation",
-  "subtype": "contract_termination",
-  "severity": "HIGH",
-  "urgency_hours": 2,
-  "confidence": 0.93,
-  "key_facts": {
-    "customer_name": "MegaMart India",
-    "complaint_type": "delivery delay with contract termination threat",
-    "sla_deadline": "2026-04-14",
-    "estimated_delay_hours": "48+",
-    "location": null,
-    "affected_shipment_count": "1",
-    "carrier_name": null
-  },
-  "reasoning": "VP-level escalation from enterprise B2B customer threatening contract termination. Rs 50,000/day penalty active. Third escalation this month indicates systemic issue. HIGH severity due to key account risk.",
-  "requires_human_approval": false,
-  "tools_used": ["get_exception_event", "get_company_profile"],
+  "tools_used": [],
   "safety_escalation": null
 }
 </output>
@@ -208,7 +161,6 @@ EMERGENCY: Chemical tanker overturned on NH8 near Vapi, Gujarat at 14:20 IST.
 Driver injured, admitted to local hospital. Chemical spill reported on highway.
 NHAI has closed 2km stretch. Our 3 trucks stuck behind the blockade. Police
 and fire services on scene. PESO notified.
-Company: SwiftLogix, Gujarat corridor.
 </input>
 <output>
 {
@@ -217,20 +169,16 @@ Company: SwiftLogix, Gujarat corridor.
   "severity": "CRITICAL",
   "urgency_hours": 0,
   "confidence": 0.98,
-  "key_facts": {
-    "carrier_name": null,
-    "route_origin": null,
-    "route_destination": null,
-    "location": "NH8 near Vapi, Gujarat",
-    "affected_shipment_count": "3",
-    "estimated_delay_hours": null,
-    "incident_type": "chemical tanker overturn with spill",
-    "casualties": "1 driver injured, hospitalized",
-    "emergency_services_contacted": "police, fire services, PESO"
-  },
-  "reasoning": "Chemical tanker accident with driver injury and hazmat spill. Emergency services involved including PESO. CRITICAL severity due to safety incident with human injury and environmental hazard.",
+  "key_facts": [
+    {"key": "location", "value": "NH8 near Vapi, Gujarat"},
+    {"key": "affected_shipment_count", "value": "3"},
+    {"key": "incident_type", "value": "chemical tanker overturn with spill"},
+    {"key": "casualties", "value": "1 driver injured, hospitalized"},
+    {"key": "emergency_services_contacted", "value": "police, fire services, PESO"}
+  ],
+  "reasoning": "Chemical tanker accident with driver injury and hazmat spill. CRITICAL severity — safety incident with human injury and environmental hazard.",
   "requires_human_approval": true,
-  "tools_used": ["get_exception_event", "get_company_profile"],
+  "tools_used": [],
   "safety_escalation": {
     "trigger_type": "keyword_and_classification",
     "matched_terms": ["overturned", "injured", "chemical spill"],
@@ -245,7 +193,6 @@ Company: SwiftLogix, Gujarat corridor.
 Customs hold at Chennai port for shipment CHN-2026-442. Missing phytosanitary
 certificate for agricultural goods. FSSAI inspection pending. Expected clearance
 delay 2-3 business days. No perishables at risk.
-Company: SwiftLogix, Chennai operations.
 </input>
 <output>
 {
@@ -254,19 +201,16 @@ Company: SwiftLogix, Chennai operations.
   "severity": "MEDIUM",
   "urgency_hours": 48,
   "confidence": 0.90,
-  "key_facts": {
-    "carrier_name": null,
-    "route_origin": "Chennai port",
-    "route_destination": null,
-    "location": "Chennai port",
-    "affected_shipment_count": "1",
-    "estimated_delay_hours": "48-72",
-    "document_type": "phytosanitary certificate",
-    "authority": "FSSAI"
-  },
-  "reasoning": "Customs hold due to missing phytosanitary certificate at Chennai port. MEDIUM severity as no perishables are at risk and the delay is 2-3 business days.",
+  "key_facts": [
+    {"key": "location", "value": "Chennai port"},
+    {"key": "affected_shipment_count", "value": "1"},
+    {"key": "estimated_delay_hours", "value": "48-72"},
+    {"key": "document_type", "value": "phytosanitary certificate"},
+    {"key": "authority", "value": "FSSAI"}
+  ],
+  "reasoning": "Customs hold due to missing phytosanitary certificate. MEDIUM severity — no perishables at risk, 2-3 business day delay.",
   "requires_human_approval": false,
-  "tools_used": ["get_exception_event", "get_company_profile"],
+  "tools_used": [],
   "safety_escalation": null
 }
 </output>
