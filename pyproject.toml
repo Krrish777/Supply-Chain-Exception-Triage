@@ -150,6 +150,7 @@ max-locals = 15
 [tool.ruff.lint.per-file-ignores]
 # Agents, runners, memory, tools, middleware — allowed to import the banned APIs.
 "src/supply_chain_triage/modules/*/agents/**/agent.py" = ["TID251"]
+"src/supply_chain_triage/modules/*/agents/*/tools.py" = ["TID251"]
 "src/supply_chain_triage/runners/**" = ["TID251"]
 "src/supply_chain_triage/**/memory/**" = ["TID251"]
 "src/supply_chain_triage/**/tools/**" = ["TID251"]
