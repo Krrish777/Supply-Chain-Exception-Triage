@@ -31,7 +31,7 @@ repos:
     hooks:
       - id: mypy
         name: mypy (project venv)
-        entry: uv run mypy src
+        entry: bash -c 'uv run mypy src'
         language: system
         types: [python]
         pass_filenames: false
@@ -40,7 +40,7 @@ repos:
       # Application-layer import contracts — see .claude/rules/architecture-layers.md.
       - id: lint-imports
         name: import-linter (layer contracts)
-        entry: uv run lint-imports
+        entry: bash -c 'uv run lint-imports'
         language: system
         types: [python]
         pass_filenames: false
@@ -49,7 +49,7 @@ repos:
       # Docstring coverage gate on boundary folders — see .claude/rules/code-quality.md §3.
       - id: interrogate
         name: interrogate (boundary docstring coverage ≥80%)
-        entry: uv run interrogate -c pyproject.toml src/supply_chain_triage/runners src/supply_chain_triage/middleware src/supply_chain_triage/modules
+        entry: bash -c 'uv run interrogate -c pyproject.toml src/supply_chain_triage/runners src/supply_chain_triage/middleware src/supply_chain_triage/modules'
         language: system
         types_or: [python]
         pass_filenames: false
