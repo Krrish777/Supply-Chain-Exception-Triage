@@ -195,6 +195,7 @@ When a model is passed as `output_schema=` on an `LlmAgent`:
 - **Nesting depth ≤ 2 levels.** Reliability drops sharply past that.
 - Flat primitives, short enums. Deep `list[BaseModel]` and untagged unions degrade.
 - Prefer discriminated unions (`Field(discriminator="kind")`) over untagged unions.
+- **Never `dict[str, Any]` or `dict[str, str]`** — Pydantic generates `additionalProperties` in the JSON Schema, which the Gemini SDK rejects (`ValueError: additionalProperties is not supported`). Use `list[KeyValueModel]` instead, where `KeyValueModel` is a flat `BaseModel(key: str, value: str)`. See `docs/research/gemini-structured-output-gotchas.md`.
 
 Longer / nested schemas: use the two-agent fetcher+formatter pattern from `.claude/rules/agents.md` §5 instead.
 
