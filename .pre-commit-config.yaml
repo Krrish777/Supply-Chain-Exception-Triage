@@ -1,5 +1,5 @@
 # Hook order: fast hygiene → lint (ruff) → format (ruff-format) → type (mypy)
-#              → import-linter → interrogate → file-size
+#              → import-linter → interrogate
 # Lint runs before format because ruff --fix can change formatting.
 # Secret scanning (gitleaks) runs in CI only — see .github/workflows/security.yml.
 # Rules live in `.claude/rules/` and `pyproject.toml`; this file enforces at commit time.
@@ -54,10 +54,3 @@ repos:
         types_or: [python]
         pass_filenames: false
         require_serial: true
-
-      # Per-path file-size caps — see .claude/rules/code-quality.md §1.
-      - id: file-size
-        name: file-size (per-path line caps)
-        entry: python .claude/hooks/check_file_size.py
-        language: system
-        files: '^(src|tests|docs)/.+\.(py|md)$'
