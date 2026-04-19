@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 from google.adk.agents import LlmAgent
 
+from supply_chain_triage.core.llm import get_resolved_llm_model
 from supply_chain_triage.utils.logging import log_agent_invocation
 
 if TYPE_CHECKING:
@@ -20,7 +21,9 @@ if TYPE_CHECKING:
     from google.adk.models.llm_response import LlmResponse
 
 _AGENT_NAME = "hello_world"
-_MODEL = "gemini-2.5-flash"
+_RESOLVED_MODEL = get_resolved_llm_model()
+_MODEL = _RESOLVED_MODEL.model
+_MODEL_NAME = _RESOLVED_MODEL.model_name
 _INSTRUCTION = (Path(__file__).parent / "prompts" / "hello_world.md").read_text(
     encoding="utf-8",
 )
@@ -60,7 +63,7 @@ def _after_agent(callback_context: CallbackContext) -> None:
         duration_ms=duration_ms,
         tokens_in=callback_context.state.get(_STATE_TOKENS_IN),
         tokens_out=callback_context.state.get(_STATE_TOKENS_OUT),
-        model=_MODEL,
+        model=_MODEL_NAME,
     )
 
 

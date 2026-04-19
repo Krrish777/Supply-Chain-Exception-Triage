@@ -26,6 +26,7 @@ dependencies = [
   "google-adk>=1.0.0",                 # Pin to exact version once verified
   "google-generativeai>=0.8.0",
   "google-cloud-secret-manager>=2.20.0",
+  "litellm>=1.83.3",                  # Groq via ADK LiteLLM connector; skip 1.82.7/1.82.8 advisory window
 
   # --- Web framework ---
   "fastapi>=0.115.0",
@@ -96,6 +97,7 @@ dev = [
 line-length = 100
 target-version = "py313"
 src = ["src", "tests"]
+exclude = [".claude", ".venv", "evals", "docs"]
 
 [tool.ruff.lint]
 ignore = [
@@ -163,6 +165,7 @@ max-locals = 15
 # Manager, Firestore) are constructed. Everything else in core/ stays framework-
 # neutral; this single file bridges. See comments in config.py.
 "src/supply_chain_triage/core/config.py" = ["TID251"]
+"src/supply_chain_triage/core/llm.py" = ["TID251"]
 # FirebaseAuthMiddleware.dispatch has 7 well-documented error paths (missing
 # creds / expired / invalid / value-error / missing-company-claim / public /
 # success). Each return is clearly labelled; factoring into data tables would

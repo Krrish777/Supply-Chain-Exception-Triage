@@ -60,6 +60,21 @@ class TestSettings:
         assert settings.gcp_project_id == "sct-test-project"
         assert settings.firebase_project_id == "sct-test-firebase"
         assert settings.cors_allowed_origins == ["http://localhost:3000"]
+        assert settings.llm_provider == "gemini"
+        assert settings.llm_model_id == "gemini-2.5-flash"
+
+    def test_reads_llm_settings_from_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("GCP_PROJECT_ID", "sct-test-project")
+        monkeypatch.setenv("FIREBASE_PROJECT_ID", "sct-test-firebase")
+        monkeypatch.setenv("CORS_ALLOWED_ORIGINS", '["http://localhost:3000"]')
+        monkeypatch.setenv("LLM_PROVIDER", "groq")
+        monkeypatch.setenv("LLM_MODEL_ID", "openai/gpt-oss-20b")
+        get_settings.cache_clear()
+
+        settings = get_settings()
+
+        assert settings.llm_provider == "groq"
+        assert settings.llm_model_id == "openai/gpt-oss-20b"
 
     def test_get_settings_is_cached(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # Given: env set and settings obtained once

@@ -27,6 +27,11 @@ _FIRESTORE_PORT = 8080
 _AUTH_EMULATOR_PORT = 9099
 _TEST_PROJECT_ID = "sct-test"
 
+# Keep test collection deterministic even if the developer shell has model
+# selection env vars set for a local Groq experiment.
+os.environ["LLM_PROVIDER"] = "gemini"
+os.environ["LLM_MODEL_ID"] = "gemini-2.5-flash"
+
 
 def _is_port_open(host: str, port: int, timeout: float = 0.5) -> bool:
     """Return True if something is listening on ``host:port``."""
@@ -58,6 +63,19 @@ def _set_emulator_env() -> Iterator[None]:
     os.environ.setdefault("GCLOUD_PROJECT", _TEST_PROJECT_ID)
     os.environ.setdefault("GOOGLE_CLOUD_PROJECT", _TEST_PROJECT_ID)
     return
+
+
+@pytest.fixture(autouse=True)
+def _reset_llm_model_defaults() -> Iterator[None]:
+    """Keep each test isolated from previous provider/model cache state."""
+    os.environ["LLM_PROVIDER"] = "gemini"
+    os.environ["LLM_MODEL_ID"] = "gemini-2.5-flash"
+
+    from supply_chain_triage.core.llm import get_resolved_llm_model
+
+    get_resolved_llm_model.cache_clear()
+    yield
+    get_resolved_llm_model.cache_clear()
 
 
 @pytest.fixture(scope="session")

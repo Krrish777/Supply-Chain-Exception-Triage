@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any
 from google.adk.agents import LlmAgent, SequentialAgent
 from google.genai import types as genai_types
 
+from supply_chain_triage.core.llm import get_resolved_llm_model
 from supply_chain_triage.modules.triage.agents.classifier.tools import (
     get_company_profile,
     get_exception_event,
@@ -34,7 +35,9 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 _AGENT_NAME = "classifier"
-_MODEL = "gemini-2.5-flash"
+_RESOLVED_MODEL = get_resolved_llm_model()
+_MODEL = _RESOLVED_MODEL.model
+_MODEL_NAME = _RESOLVED_MODEL.model_name
 _PROMPTS_DIR = Path(__file__).parent / "prompts"
 _FETCHER_INSTRUCTION = (_PROMPTS_DIR / "system_fetcher.md").read_text(encoding="utf-8")
 _FORMATTER_INSTRUCTION = (_PROMPTS_DIR / "system_formatter.md").read_text(encoding="utf-8")
@@ -128,7 +131,7 @@ def _after_agent(callback_context: CallbackContext) -> None:
         duration_ms=duration_ms,
         tokens_in=callback_context.state.get(_STATE_TOKENS_IN),
         tokens_out=callback_context.state.get(_STATE_TOKENS_OUT),
-        model=_MODEL,
+        model=_MODEL_NAME,
     )
 
 

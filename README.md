@@ -1,7 +1,7 @@
 # Supply Chain Triage
 
 AI-powered exception triage for small 3PLs in India. Built on Google ADK,
-Gemini 2.5 Flash, Firestore, and Firebase Auth.
+env-configurable Gemini or Groq models, Firestore, and Firebase Auth.
 
 ## Prerequisites
 
@@ -26,7 +26,8 @@ make setup
 
 # 3. Copy env template and fill in secrets
 cp .env.template .env
-# Edit .env with your GCP / Firebase / Gemini keys
+# Edit .env with your GCP / Firebase settings, LLM_PROVIDER / LLM_MODEL_ID,
+# and either GEMINI_API_KEY or GROQ_API_KEY
 
 # 4. Run tests
 make test

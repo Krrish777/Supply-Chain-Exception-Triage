@@ -24,6 +24,7 @@ import os
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -53,6 +54,8 @@ class Settings(BaseSettings):
     gcp_project_id: str
     firebase_project_id: str
     cors_allowed_origins: list[str] = ["http://localhost:3000"]
+    llm_provider: str = "gemini"
+    llm_model_id: str = "gemini-2.5-flash"
 
     # Emulator toggles. Setting either switches the corresponding client to
     # the emulator. NEVER set FIREBASE_AUTH_EMULATOR_HOST in prod — the Admin
@@ -66,6 +69,22 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     log_to_files: bool = True
     logs_dir: str = "logs"
+
+    @field_validator("llm_provider")
+    @classmethod
+    def _normalize_llm_provider(cls, value: str) -> str:
+        provider = value.strip().lower()
+        if provider not in {"gemini", "groq"}:
+            raise ValueError("llm_provider must be 'gemini' or 'groq'")
+        return provider
+
+    @field_validator("llm_model_id")
+    @classmethod
+    def _normalize_llm_model_id(cls, value: str) -> str:
+        model_id = value.strip()
+        if not model_id:
+            raise ValueError("llm_model_id must not be empty")
+        return model_id
 
 
 @lru_cache(maxsize=1)

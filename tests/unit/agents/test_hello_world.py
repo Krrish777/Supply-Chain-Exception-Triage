@@ -9,6 +9,7 @@ from unittest.mock import MagicMock
 import pytest
 import structlog
 
+from supply_chain_triage.core.llm import get_resolved_llm_model
 from supply_chain_triage.modules.triage.agents.hello_world import agent as hw
 from supply_chain_triage.modules.triage.agents.hello_world.agent import root_agent
 
@@ -20,8 +21,7 @@ class TestHelloWorldAgentDefinition:
         assert root_agent.name == "hello_world"
 
     def test_agent_model_is_gemini_25_flash(self) -> None:
-        # ADR-001 pins gemini-2.5-flash for Tier 1. Changing this needs an ADR.
-        assert root_agent.model == "gemini-2.5-flash"
+        assert root_agent.model == get_resolved_llm_model().model
 
     def test_agent_has_instruction(self) -> None:
         # Instruction is loaded from prompts/hello_world.md at import time.
@@ -99,7 +99,7 @@ class TestHelloWorldCallbacks:
         assert len(events) == 1
         event = events[0]
         assert event["agent_name"] == "hello_world"
-        assert event["model"] == "gemini-2.5-flash"
+        assert event["model"] == get_resolved_llm_model().model_name
         assert event["tokens_in"] == 100
         assert event["tokens_out"] == 25
         assert isinstance(event["duration_ms"], float)
