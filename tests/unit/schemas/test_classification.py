@@ -20,7 +20,7 @@ def _base_result(**overrides: object) -> dict[str, object]:
         "severity": Severity.HIGH.value,
         "urgency_hours": 4,
         "confidence": 0.85,
-        "key_facts": {"vehicle_id": "MH-12-AB-1234"},
+        "key_facts": [{"key": "vehicle_id", "value": "MH-12-AB-1234"}],
         "reasoning": "Driver reported breakdown; 4h repair window given NH-48 traffic.",
         "requires_human_approval": False,
         "tools_used": ["check_safety_keywords", "translate_text"],
