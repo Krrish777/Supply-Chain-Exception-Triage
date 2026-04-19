@@ -161,6 +161,9 @@ max-locals = 15
 "src/supply_chain_triage/**/memory/**" = ["TID251"]
 "src/supply_chain_triage/**/tools/**" = ["TID251"]
 "src/supply_chain_triage/middleware/**" = ["TID251"]
+# pipeline/ is the ADK orchestration layer that assembles SequentialAgent + wires
+# callbacks — same tier as agents/*/agent.py. Needs google.adk types for signatures.
+"src/supply_chain_triage/**/pipeline/**" = ["TID251"]
 # core/config.py is the DI chokepoint where framework-specific clients (Secret
 # Manager, Firestore) are constructed. Everything else in core/ stays framework-
 # neutral; this single file bridges. See comments in config.py.
@@ -184,7 +187,9 @@ max-locals = 15
 # mocking), no docstrings, Given/When/Then comments (ERA001), en-dashes in
 # docstrings (RUF002 — we write "3.1–3.3" style test-plan references), and
 # in-body imports needed for monkeypatched env reloads (PLC0415).
-"tests/**" = ["S101", "S105", "S106", "PLR2004", "ARG", "TID251", "D", "ERA001", "RUF002", "PLC0415"]
+# RUF001/RUF003: tests intentionally use edge-case Unicode (e.g. full-width chars
+# in NFKC-normalization tests). Suppressing ambiguous-char warnings for test data.
+"tests/**" = ["S101", "S105", "S106", "PLR2004", "ARG", "TID251", "D", "ERA001", "RUF001", "RUF002", "RUF003", "PLC0415"]
 # Evalsets — assert allowed, docstrings not required.
 "evals/**" = ["S101", "D"]
 # __init__ — re-exports, no module-level docstring required.

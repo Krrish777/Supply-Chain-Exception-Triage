@@ -36,6 +36,8 @@ ALLOWLIST: tuple[str, ...] = (
     "src/supply_chain_triage/modules/*/memory/**/*.py",
     "src/supply_chain_triage/modules/*/models/**/*.py",
     "src/supply_chain_triage/modules/*/guardrails/**/*.py",
+    # modules — pipeline orchestration layer (assembles SequentialAgent + callbacks)
+    "src/supply_chain_triage/modules/*/pipeline/**/*.py",
     # tests
     "tests/unit/**/*.py",
     "tests/integration/**/*.py",

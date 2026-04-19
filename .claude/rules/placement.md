@@ -64,6 +64,7 @@ firebase.json      — Firebase CLI config (emulators + deploy targets)
 | Tool shared within a module | `modules/<mod>/tools/` |
 | Module memory / session adapter | `modules/<mod>/memory/` |
 | Module guardrails / validators | `modules/<mod>/guardrails/` |
+| Pipeline orchestration (SequentialAgent factory + callbacks + constants) | `modules/<mod>/pipeline/` |
 | FastAPI middleware | `middleware/` |
 | FastAPI app/coordinator wiring | `runners/` |
 | Cross-module config/settings | `core/` |
