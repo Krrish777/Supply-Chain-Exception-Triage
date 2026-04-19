@@ -51,5 +51,4 @@ class ClassificationResult(BaseModel):
     )
     reasoning: str = Field(..., min_length=1, max_length=2000)
     requires_human_approval: bool = False
-    tools_used: list[str] = Field(default_factory=list)
     safety_escalation: SafetyEscalation | None = None

@@ -23,7 +23,6 @@ def _base_result(**overrides: object) -> dict[str, object]:
         "key_facts": [{"key": "vehicle_id", "value": "MH-12-AB-1234"}],
         "reasoning": "Driver reported breakdown; 4h repair window given NH-48 traffic.",
         "requires_human_approval": False,
-        "tools_used": ["check_safety_keywords", "translate_text"],
         "safety_escalation": None,
     }
     base.update(overrides)

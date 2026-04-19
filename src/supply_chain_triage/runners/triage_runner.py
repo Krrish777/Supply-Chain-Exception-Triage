@@ -46,17 +46,26 @@ _NS_TO_MS = 1_000_000
 _PIPELINE_AGENT_NAME = "triage_pipeline"
 
 
-async def run_triage(*, event_id: str, raw_text: str) -> TriageResult:
+async def run_triage(
+    *,
+    event_id: str,
+    raw_text: str,
+    company_id: str | None = None,
+) -> TriageResult:
     """Run the full triage pipeline and return a structured ``TriageResult``.
 
-    Seeds ``triage:event_id`` and ``triage:event_raw_text`` into session state
-    at session-creation time (guaranteed committed before the first
-    ``before_agent_callback`` fires) and reads the final state after the
-    pipeline drains.
+    Seeds ``triage:event_id``, ``triage:event_raw_text``, and (when supplied)
+    ``triage:auth_company_id`` into session state at session-creation time
+    (guaranteed committed before the first ``before_agent_callback`` fires)
+    and reads the final state after the pipeline drains.
 
     Args:
         event_id: Exception event ID (Firestore doc ID).
         raw_text: Raw text of the exception (body of the Rule B keyword scan).
+        company_id: Authenticated tenant's company ID. Used by the hydration
+            callback as a fallback source for the company profile when the
+            event is ad-hoc (no Firestore document) or when the event's
+            ``metadata.company_id`` is missing.
 
     Returns:
         A ``TriageResult`` assembled from session state. Never raises on
@@ -69,13 +78,17 @@ async def run_triage(*, event_id: str, raw_text: str) -> TriageResult:
     pipeline = create_triage_pipeline()
     runner = Runner(agent=pipeline, app_name=_APP_NAME, session_service=session_service)
 
+    initial_state: dict[str, Any] = {
+        "triage:event_id": event_id,
+        "triage:event_raw_text": raw_text,
+    }
+    if company_id:
+        initial_state["triage:auth_company_id"] = company_id
+
     session = await session_service.create_session(
         app_name=_APP_NAME,
         user_id=_USER_ID,
-        state={
-            "triage:event_id": event_id,
-            "triage:event_raw_text": raw_text,
-        },
+        state=initial_state,
     )
 
     trigger = genai_types.Content(
@@ -118,7 +131,12 @@ class _StreamTracking:
     emitted_partial_classification: bool = False
 
 
-async def _triage_event_stream(*, event_id: str, raw_text: str) -> AsyncIterator[dict[str, Any]]:
+async def _triage_event_stream(
+    *,
+    event_id: str,
+    raw_text: str,
+    company_id: str | None = None,
+) -> AsyncIterator[dict[str, Any]]:
     r"""Stream the triage pipeline as SSE-friendly frame dicts.
 
     Reuses ``create_triage_pipeline()`` (same pipeline as ``run_triage``) and
@@ -132,6 +150,9 @@ async def _triage_event_stream(*, event_id: str, raw_text: str) -> AsyncIterator
     Args:
         event_id: Exception event ID (Firestore doc ID, or synthesized ad-hoc).
         raw_text: Raw text of the exception (body of Rule B's keyword scan).
+        company_id: Authenticated tenant's company ID. Seeded into state so
+            the hydration callback can fall back to it for company-profile
+            lookup when the event has no ``metadata.company_id``.
 
     Yields:
         ``{"event": <type>, "data": <payload dict>}``. The route layer wraps
@@ -144,13 +165,18 @@ async def _triage_event_stream(*, event_id: str, raw_text: str) -> AsyncIterator
     session_service = InMemorySessionService()  # type: ignore[no-untyped-call]
     pipeline = create_triage_pipeline()
     runner = Runner(agent=pipeline, app_name=_APP_NAME, session_service=session_service)
+
+    initial_state: dict[str, Any] = {
+        "triage:event_id": event_id,
+        "triage:event_raw_text": raw_text,
+    }
+    if company_id:
+        initial_state["triage:auth_company_id"] = company_id
+
     session = await session_service.create_session(
         app_name=_APP_NAME,
         user_id=_USER_ID,
-        state={
-            "triage:event_id": event_id,
-            "triage:event_raw_text": raw_text,
-        },
+        state=initial_state,
     )
     trigger = genai_types.Content(
         role="user",

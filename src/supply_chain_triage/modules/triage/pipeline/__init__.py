@@ -1,8 +1,15 @@
 """Triage pipeline — SequentialAgent factory wiring classifier + impact with rule callbacks.
 
-Rule B (safety override) is attached at pipeline level via ``before_agent_callback``.
-Rule C/F (impact gate) is injected into the impact sub-agent via ``create_impact``.
-Priority: B > C > F.
+Pipeline-level ``before_agent_callback`` is a list, run in order:
+
+1. ``_hydrate_event`` — deterministic Firestore pre-fetch (event + company)
+   so subsequent agents read hydrated state instead of relying on the LLM
+   to choose the right tools. Always returns ``None``.
+2. ``_rule_b_safety_check`` — keyword scan on the (now-real) raw content.
+   Returns ``Content`` when matched to short-circuit the entire pipeline.
+
+Rule C/F (impact gate) is injected into the impact sub-agent via
+``create_impact``. Priority: B > C > F.
 """
 
 from __future__ import annotations
@@ -15,23 +22,25 @@ from supply_chain_triage.modules.triage.pipeline.callbacks import (
     _rule_b_safety_check,
     _rule_cf_skip_check,
 )
+from supply_chain_triage.modules.triage.pipeline.hydration import _hydrate_event
 
 _PIPELINE_NAME = "triage_pipeline"
 _PIPELINE_DESCRIPTION = (
-    "End-to-end triage pipeline: classifies the exception then (conditionally) "
-    "assesses business impact. Rule B short-circuits the entire pipeline on "
-    "safety keywords; Rule C/F gates the impact sub-agent."
+    "End-to-end triage pipeline: hydrates event + company context from "
+    "Firestore, then classifies the exception and (conditionally) assesses "
+    "business impact. Rule B short-circuits the entire pipeline on safety "
+    "keywords; Rule C/F gates the impact sub-agent."
 )
 
 
 def create_triage_pipeline() -> SequentialAgent:
-    """Create the full triage SequentialAgent with Rule B + Rule C/F callbacks wired in."""
+    """Create the full triage SequentialAgent with hydration + Rule B + Rule C/F wired in."""
     classifier = create_classifier()
     impact = create_impact(before_agent_callback=_rule_cf_skip_check)
     return SequentialAgent(
         name=_PIPELINE_NAME,
         description=_PIPELINE_DESCRIPTION,
-        before_agent_callback=_rule_b_safety_check,
+        before_agent_callback=[_hydrate_event, _rule_b_safety_check],
         sub_agents=[classifier, impact],
     )
 

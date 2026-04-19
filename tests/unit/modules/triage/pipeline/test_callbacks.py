@@ -46,7 +46,6 @@ def _classification_json(
             "key_facts": [],
             "reasoning": "test",
             "requires_human_approval": False,
-            "tools_used": [],
             "safety_escalation": None,
         }
     )

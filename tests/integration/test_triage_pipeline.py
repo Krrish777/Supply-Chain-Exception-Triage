@@ -153,3 +153,95 @@ async def test_i2_rule_b_short_circuits_pipeline() -> None:
     assert result.classification.exception_type == "safety_incident"
     assert result.classification.severity == "CRITICAL"
     assert result.classification.requires_human_approval is True
+
+
+# ---------------------------------------------------------------------------
+# I-3 — Hydration enables Rule B on event-id-only input
+# ---------------------------------------------------------------------------
+
+_EVENT_ID_I3 = "EXC-TEST-HYDRATION-I3"
+_COMPANY_ID_I3 = "swiftlogix-test-i3"
+_HYDRATED_SAFETY_RAW_CONTENT = (
+    "EMERGENCY: Chemical tanker overturned on NH8 near Vapi at 14:20 IST. "
+    "Driver injured and admitted to local hospital. Chemical spill reported."
+)
+
+
+@pytest.fixture
+async def seeded_safety_exception(
+    require_firestore_emulator: None,  # fixture guard — value unused
+) -> None:
+    """Seed a safety-keyword exception accessible by event_id alone."""
+    db = AsyncClient(project=_PROJECT_ID)
+
+    await (
+        db.collection("companies")
+        .document(_COMPANY_ID_I3)
+        .set(
+            {
+                "company_id": _COMPANY_ID_I3,
+                "name": "SwiftLogix Test I3",
+                "profile_summary": "Test operator.",
+                "num_trucks": 10,
+                "num_employees": 20,
+                "regions_of_operation": ["Gujarat"],
+                "carriers": ["BlueDart"],
+                "customer_portfolio": {
+                    "d2c_percentage": 0.3,
+                    "b2b_percentage": 0.5,
+                    "b2b_enterprise_percentage": 0.2,
+                    "top_customers": ["Acme"],
+                },
+                "avg_daily_revenue_inr": 500000,
+                "active": True,
+            }
+        )
+    )
+    await (
+        db.collection("exceptions")
+        .document(_EVENT_ID_I3)
+        .set(
+            {
+                "event_id": _EVENT_ID_I3,
+                "timestamp": "2026-04-19T14:20:00+00:00",
+                "source_channel": "manual_entry",
+                "sender": {"name": "Highway Patrol", "role": "emergency"},
+                "raw_content": _HYDRATED_SAFETY_RAW_CONTENT,
+                "original_language": None,
+                "english_translation": None,
+                "media_urls": [],
+                "metadata": {"company_id": _COMPANY_ID_I3},
+            }
+        )
+    )
+
+    yield
+
+    await db.collection("companies").document(_COMPANY_ID_I3).delete()
+    await db.collection("exceptions").document(_EVENT_ID_I3).delete()
+
+
+async def test_i3_hydration_enables_rule_b_on_event_id_only(
+    seeded_safety_exception: None,  # fixture seeds + cleans up — value unused
+) -> None:
+    """Hydration callback re-seeds raw_text from Firestore so Rule B can fire.
+
+    Regression test for the original EXC-2026-0004 trace: before hydration,
+    Rule B was blind when only ``event_id`` was supplied (empty ``raw_text``).
+    The deterministic hydration callback now fetches the exception document
+    and copies its ``raw_content`` into ``triage:event_raw_text`` before
+    Rule B runs. No Gemini call — pure callback + Firestore.
+    """
+    result = await run_triage(event_id=_EVENT_ID_I3, raw_text="")
+
+    assert result.event_id == _EVENT_ID_I3
+    assert result.status == TriageStatus.escalated_to_human_safety
+    assert result.impact is None
+    assert result.classification is not None
+    assert result.classification.exception_type == "safety_incident"
+    assert result.classification.severity == "CRITICAL"
+    assert result.classification.requires_human_approval is True
+    # Safety keywords that should have been matched in the hydrated content.
+    safety_matched = result.classification.safety_escalation
+    assert safety_matched is not None
+    assert any(term in safety_matched.matched_terms for term in ("overturned", "injured", "spill"))

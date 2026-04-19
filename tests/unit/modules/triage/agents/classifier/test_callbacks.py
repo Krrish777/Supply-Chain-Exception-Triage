@@ -90,7 +90,6 @@ class TestPostClassificationRules:
             "key_facts": {"carrier_name": "BlueDart"},
             "reasoning": "Test reasoning",
             "requires_human_approval": False,
-            "tools_used": [],
             "safety_escalation": None,
         }
         base.update(overrides)

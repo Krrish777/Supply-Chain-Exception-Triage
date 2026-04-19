@@ -1,0 +1,39 @@
+{
+  "eval_set_id": "triage_pipeline_v1",
+  "name": "triage_pipeline_v1",
+  "description": "Smoke evalset for the triage pipeline. Starter case covers the Rule B safety short-circuit regression (EXC-2026-0004 chemical tanker): event_id-only input, hydration re-seeds raw_text from Firestore, Rule B fires pre-LLM. No Gemini call required. Expand to 15-25 cases (happy path per category + edge + adversarial + degraded tool) per .claude/rules/evalsets.md §2 in follow-up work.",
+  "eval_cases": [
+    {
+      "eval_id": "safety_hydration_from_event_id",
+      "conversation": [
+        {
+          "invocation_id": "inv_1",
+          "user_content": {
+            "parts": [
+              {"text": "Triage exception EXC-2026-0004"}
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {"text": "Safety-keyword escalation."}
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "tool_uses": [],
+            "intermediate_responses": []
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "triage_pipeline",
+        "user_id": "eval_user",
+        "state": {
+          "triage:event_id": "EXC-2026-0004",
+          "triage:event_raw_text": ""
+        }
+      }
+    }
+  ]
+}

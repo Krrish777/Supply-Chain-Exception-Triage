@@ -40,8 +40,8 @@ docs/sessions/     — session notes
 
 scripts/           — shell + python automation (setup, bootstrap, seed, deploy, claim seeding)
 ├── *.sh           — bash scripts (setup.sh, gcp_bootstrap.sh, deploy.sh)
-├── *.py           — python scripts (seed_firestore.py, set_custom_claims.py)
-└── seed/          — seed data JSONs (festival_calendar, monsoon_regions, shipments, etc.)
+├── *.py           — python scripts (seed_emulator.py, seed_classifier_demo.py, seed_impact_demo.py, set_custom_claims.py)
+└── seed/          — seed data JSONs (companies_*, exceptions, customers, routes, hubs, shipments)
 
 infra/             — infrastructure config (non-code)
 ├── firestore.rules          — Firestore security rules (multi-tenant)
@@ -75,7 +75,7 @@ firebase.json      — Firebase CLI config (emulators + deploy targets)
 | Session notes | `docs/sessions/YYYY-MM-DD-<slug>.md` |
 | Research doc / vault copy / Zettel | `docs/research/` |
 | Bash automation script | `scripts/*.sh` (setup.sh, gcp_bootstrap.sh, deploy.sh) |
-| Python automation script | `scripts/*.py` (seed_firestore.py, set_custom_claims.py) |
+| Python automation script | `scripts/*.py` (seed_emulator.py, seed_classifier_demo.py, seed_impact_demo.py, set_custom_claims.py) |
 | Seed data (JSON) | `scripts/seed/*.json` |
 | Firestore rules / indexes | `infra/firestore.rules`, `infra/firestore.indexes.json` |
 | Firebase CLI config | `firebase.json` (repo root) |

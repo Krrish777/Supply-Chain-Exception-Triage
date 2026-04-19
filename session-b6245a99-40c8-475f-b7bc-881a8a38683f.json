@@ -1,0 +1,381 @@
+{
+  "id": "b6245a99-40c8-475f-b7bc-881a8a38683f",
+  "appName": "triage_pipeline",
+  "userId": "user",
+  "state": {
+    "triage:event_raw_content": "",
+    "raw_exception_data": "## Exception Details\n- Event ID: direct-input\n- Source: manual_entry\n- Raw content: WMS at Bhiwandi DC unreachable since 03:15 IST. Pickers on paper fallback. No barcode scans logged since midnight. 1,400 pending dispatches. IT investigating ransomware\n   indicators\n\n## Company Context\nNot available — no company profile hydrated\n\n## Initial Observations\n- Key entities mentioned (carrier names, vehicle IDs, routes, shipment IDs, locations)\n- Time-sensitive indicators (deadlines, SLA mentions, urgency language)\n- Safety-related signals (accidents, injuries, hazmat, spills)\n- Hydration status: fallback (no Firestore lookup)",
+    "triage:classification": {
+      "exception_type": "carrier_capacity_failure",
+      "subtype": "equipment_failure",
+      "severity": "HIGH",
+      "urgency_hours": 4,
+      "confidence": 0.85,
+      "key_facts": [
+        {
+          "key": "location",
+          "value": "Bhiwandi DC"
+        },
+        {
+          "key": "disruption_cause",
+          "value": "WMS unreachable, ransomware indicators"
+        },
+        {
+          "key": "affected_shipment_count",
+          "value": "1,400"
+        },
+        {
+          "key": "system_affected",
+          "value": "WMS"
+        }
+      ],
+      "reasoning": "The WMS at Bhiwandi DC is unreachable due to suspected ransomware, leading to 1,400 pending dispatches and forcing manual fallback. This represents a significant hub disruption affecting operational capacity, classifying it as HIGH severity under equipment failure.",
+      "requires_human_approval": false
+    },
+    "cache:shipments:region:Bhiwandi DC": {
+      "shipments": [],
+      "count": 0
+    },
+    "raw_impact_data": "### Exception Summary\n- Exception type: carrier_capacity_failure\n- Subtype: equipment_failure\n- Severity: HIGH\n- Scope: region: Bhiwandi DC, 0 shipments found, source: classification.key_facts\n\n### Affected Shipments\nNo shipments found for the specified scope.\n\n### Route & Hub Status\nNot available as no affected shipments were found to determine route IDs.\n\n### Financial Totals\nNot available as no affected shipments were found to calculate financial impact.\n\n### Notes\n- The initial query for affected shipments using `scope_type=\"region\"` and `scope_value=\"Bhiwandi DC\"` returned 0 shipments.\n- No broader scope was available for a retry.",
+    "triage:impact": {
+      "event_id": "N/A",
+      "affected_shipments": [],
+      "total_value_at_risk_inr": 0,
+      "total_penalty_exposure_inr": 0,
+      "estimated_churn_impact_inr": 0,
+      "recommended_priority_order": [],
+      "priority_reasoning": "No shipments were found to be affected by this event, so no priority order can be established.",
+      "has_reputation_risks": false,
+      "reputation_risk_shipments": [],
+      "total_financial_exposure_inr": 0,
+      "cascade_risk_summary": "No affected shipments were identified, therefore no cascade risk can be assessed.",
+      "estimated_delay_hours": 0,
+      "summary": "The carrier capacity failure due to equipment failure in the Bhiwandi DC region currently shows no impact on shipments. No affected shipments were found, resulting in zero financial exposure or operational delays."
+    }
+  },
+  "events": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "WMS at Bhiwandi DC unreachable since 03:15 IST. Pickers on paper fallback. No barcode scans logged since midnight. 1,400 pending dispatches. IT investigating ransomware\n   indicators"
+          }
+        ],
+        "role": "user"
+      },
+      "invocationId": "e-f237456d-5552-4762-b0c9-5d4143cc5291",
+      "author": "user",
+      "actions": {
+        "stateDelta": {},
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "b827afd3-2eda-41a3-b873-517bb74ceb41",
+      "timestamp": 1776602791.146147
+    },
+    {
+      "invocationId": "e-f237456d-5552-4762-b0c9-5d4143cc5291",
+      "author": "triage_pipeline",
+      "actions": {
+        "stateDelta": {
+          "triage:event_raw_content": ""
+        },
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "b4a6a69a-b10f-487d-a7ac-b633f949d5f2",
+      "timestamp": 1776602791.157273
+    },
+    {
+      "invocationId": "e-f237456d-5552-4762-b0c9-5d4143cc5291",
+      "author": "classifier",
+      "actions": {
+        "stateDelta": {},
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "9c0ee287-68c6-4552-a524-b7ec6f3f224a",
+      "timestamp": 1776602791.1666844
+    },
+    {
+      "modelVersion": "gemini-2.5-flash",
+      "content": {
+        "parts": [
+          {
+            "text": "## Exception Details\n- Event ID: direct-input\n- Source: manual_entry\n- Raw content: WMS at Bhiwandi DC unreachable since 03:15 IST. Pickers on paper fallback. No barcode scans logged since midnight. 1,400 pending dispatches. IT investigating ransomware\n   indicators\n\n## Company Context\nNot available — no company profile hydrated\n\n## Initial Observations\n- Key entities mentioned (carrier names, vehicle IDs, routes, shipment IDs, locations)\n- Time-sensitive indicators (deadlines, SLA mentions, urgency language)\n- Safety-related signals (accidents, injuries, hazmat, spills)\n- Hydration status: fallback (no Firestore lookup)",
+            "thoughtSignature": "CqIHAQw51scOdxB1oC265ER3yxCLUxOX4mmfQxCVf_xQrD5Ll46yIazZPOMVQtmSLEgf-qZs2UrY1N1YZZdJUMqX7i58Vj6L2ONODaemjYBwt_BBMT_OL8Y0SZa5pq6XX6vtS-_827hDArrNszkguFVjbl2Ud1EfIXKRHsSOJ5EOmfiH_cq-yodYXIjgKzyI3OU8efWkacUn5PpXjSbWWZ3s1UnBM82DQ3d_CSsGL27lB7EXBbexcNLxVaI_h6yq-RcBFMv7MFFRR0E5vp_wX6U3EqBHStvqmTF7NPN2aFnOT1zPUdydw735Qm7lKmh2fv9WguK8jRk0F3Ecd-G8NkEA3a-uN0ySv81GWDkilieKed-wenAcrrrP7AR8XTrtBIP4OpnVMPLePjCx-1Ss5L4RYRRHAd3drpfkXZ-GkuHeMBZlN5WCgtQAX2sENbNUnNhGjCvALmMOiXYrH27-jnWgxsmz6Dmai_-ysU6P7wbc5dHBChIIR_u94LF2QzgrBFMAmeqn8V-ZcF-Q1XO_-RRV8BDhXz8PL9DGtS7yUqIrtt7cfGhkgs4WZNTJsidvM4CVTdZIwYZyxjeobh943geoV756PggC-aVEXBNSFNyiItxiFtN-wB7mz2TO8OQgJHigLMn4tIuAg4ky-oaG8D-Ps_3XlGBDp7bMN-edSGKckfZs8A7zC17EXmdwXfSaQMHRXY5eqHIUDKK9dZm3Gda9QRB-ycQFp8ox6VIDiK4TpSNKoJOuhQUalhTJn52W3SWr3L5dItTvnJfmFy4PwKYxKCUDXeGMo6NWNRgVPw7ue1UxyAQ44vRy61tu39rUWqAKkaAYfCH-GOaA2zwp6d5qpcIP7P86Uieh53EF4Gbdlx2dnG-71R9xtDYwo0r6-eXkyUOWPSYlGFVf5DHS8JxbTnMeY36D6mcIrURs2iB6UcBFiOU1w5EcWyAesORL87owEFRG5cBJiuAUYB6X14wmOvwb3L6xCeBS_DGZiTIUEXh5pKjD01Zk-6v6qwusSx26s2DptT5jL1M33MkaH_dqJnZrvgESigUhNCDtQj1bpw98hoc4OzjLBJfIz7ZoPo5XOSGgAZZvu5t2g8UEOrbf_ZZVfB8nHj9i4lnllO8ykqhXXAdbX1nRZRIwkkROY9cGMz_LE9ODL0B-zMIpqjwrdZaofePY2ynd8KT8D1z2oRC9Ag45fHC2MA0XHsPzdb4FKbf7DgfEXhvbeAFHZJ-uo_A8"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "usageMetadata": {
+        "candidatesTokenCount": 149,
+        "promptTokenCount": 1161,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 1161
+          }
+        ],
+        "thoughtsTokenCount": 245,
+        "totalTokenCount": 1555
+      },
+      "invocationId": "e-f237456d-5552-4762-b0c9-5d4143cc5291",
+      "author": "classifier_fetcher",
+      "actions": {
+        "stateDelta": {
+          "raw_exception_data": "## Exception Details\n- Event ID: direct-input\n- Source: manual_entry\n- Raw content: WMS at Bhiwandi DC unreachable since 03:15 IST. Pickers on paper fallback. No barcode scans logged since midnight. 1,400 pending dispatches. IT investigating ransomware\n   indicators\n\n## Company Context\nNot available — no company profile hydrated\n\n## Initial Observations\n- Key entities mentioned (carrier names, vehicle IDs, routes, shipment IDs, locations)\n- Time-sensitive indicators (deadlines, SLA mentions, urgency language)\n- Safety-related signals (accidents, injuries, hazmat, spills)\n- Hydration status: fallback (no Firestore lookup)"
+        },
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "d3432448-7bdd-4850-9dda-04ccfbc56063",
+      "timestamp": 1776602791.1832817
+    },
+    {
+      "modelVersion": "gemini-2.5-flash",
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"exception_type\": \"carrier_capacity_failure\",\n  \"subtype\": \"equipment_failure\",\n  \"severity\": \"HIGH\",\n  \"urgency_hours\": 4,\n  \"confidence\": 0.85,\n  \"key_facts\": [\n    {\n      \"key\": \"location\",\n      \"value\": \"Bhiwandi DC\"\n    },\n    {\n      \"key\": \"disruption_cause\",\n      \"value\": \"WMS unreachable, ransomware indicators\"\n    },\n    {\n      \"key\": \"affected_shipment_count\",\n      \"value\": \"1,400\"\n    },\n    {\n      \"key\": \"system_affected\",\n      \"value\": \"WMS\"\n    }\n  ],\n  \"reasoning\": \"The WMS at Bhiwandi DC is unreachable due to suspected ransomware, leading to 1,400 pending dispatches and forcing manual fallback. This represents a significant hub disruption affecting operational capacity, classifying it as HIGH severity under equipment failure.\",\n  \"requires_human_approval\": false,\n  \"safety_escalation\": null\n}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "usageMetadata": {
+        "candidatesTokenCount": 257,
+        "promptTokenCount": 2520,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 2520
+          }
+        ],
+        "thoughtsTokenCount": 816,
+        "totalTokenCount": 3593
+      },
+      "invocationId": "e-f237456d-5552-4762-b0c9-5d4143cc5291",
+      "author": "classifier_formatter",
+      "actions": {
+        "stateDelta": {
+          "triage:classification": {
+            "exception_type": "carrier_capacity_failure",
+            "subtype": "equipment_failure",
+            "severity": "HIGH",
+            "urgency_hours": 4,
+            "confidence": 0.85,
+            "key_facts": [
+              {
+                "key": "location",
+                "value": "Bhiwandi DC"
+              },
+              {
+                "key": "disruption_cause",
+                "value": "WMS unreachable, ransomware indicators"
+              },
+              {
+                "key": "affected_shipment_count",
+                "value": "1,400"
+              },
+              {
+                "key": "system_affected",
+                "value": "WMS"
+              }
+            ],
+            "reasoning": "The WMS at Bhiwandi DC is unreachable due to suspected ransomware, leading to 1,400 pending dispatches and forcing manual fallback. This represents a significant hub disruption affecting operational capacity, classifying it as HIGH severity under equipment failure.",
+            "requires_human_approval": false
+          }
+        },
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "06b543cb-75d0-41c4-897d-9fd1f0cbcafb",
+      "timestamp": 1776602795.3040273
+    },
+    {
+      "invocationId": "e-f237456d-5552-4762-b0c9-5d4143cc5291",
+      "author": "impact",
+      "actions": {
+        "stateDelta": {},
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "65e3cba0-c132-4001-956f-21bce5c341c4",
+      "timestamp": 1776602804.2571921
+    },
+    {
+      "modelVersion": "gemini-2.5-flash",
+      "content": {
+        "parts": [
+          {
+            "functionCall": {
+              "id": "adk-274381cb-d63f-474f-a6d2-7a9fe33e0bdd",
+              "args": {
+                "scope_value": "Bhiwandi DC",
+                "scope_type": "region"
+              },
+              "name": "get_affected_shipments"
+            },
+            "thoughtSignature": "CvIHAQw51sfgE0VnxPSH0HUbgLsJGqKFax9nCi1UKt4Yb_7DjKRCIJSA59-H7zj3-sMfE1eZ71faUYAXX_6UvIev7QxePJ7Pa_xC9dEkovUn1ghvLtDvMVMUi_xJcpu45CJMs4iAWnxsOuFspXKTouEk6ZRztygaVy_At018GaBy1YW6-v42VJmwR8bJYWFDV4ygitBSPvX3waDtSV2hKEqt9ulqV9rmZ_4IoPGGK-R4DIhOao9mZXj9APyFCrZ433TX_zK4fGF16si7wRec5k6CaleMvxnB9MOmUcdJn3HGi8XBzu48uJPMbq-48OKhyigVSvc2OwKkieAci9kcGq8Mj48NU8VgT8t9JCqcAeU956I3DZMYltm5W3fFU-t2mMJRWddztM_qDqCrJ0qQx5axItzAOs3AyqyqB3hHGLefGzt6PQsr6Qczlp5Eo3462kuCA7oGHFDvf4e2N94s-I4sklPBKkJZ82bqwWifV3o9jQeLw7ode87odIEe_x_ZRD_2xIAGbFwpF1DoJyta_ouCO4CugHeZlLjMrq3aFjlSWTVnu0LkDqqSFAagDAVbzSUaBruGMHYAV5X8YK6lXFRp9aoNaWmnGj49BQac5Td0NRtU3yhO4SuCJC1pRPaNVK_ctZcSSYmXpmwro4bqZfceOJNA-vx1Jn0w7T_LTWxp48AfKXqGc3YEUfaEfe60qs498wTB6XdeAWKu1vre-k0gmFgOanD5fVRTI-nPkOWZ1umyFrsvHNCiCbe8WipShU8s6xV-Hle2s8jfoRtlpjr6dIHKI5zlMks08GM4RwA1gzkIGRaYg6ileCC5ornDXa-eS1XukTD6Acuxxj6XCCRZGawnIdJu2i10ZylU7oEIJ0wEAKTnZU3UnPkkXAAkaQabpy8cBTefNq9e8pjILZVCZgyIfyKBKXLsZn38uFYSOcEUI752_TcMJd98q_Qmr5BMq_N6tTNrsctWaYVXTY4Ej3TYnbfXr8lhOkDWVEfHfGUaza8Iui5XDR4WKUB7BNt9q5Yc26kdO-4bTFhwi5EWqKzCL6zJxOnPYmPyXBoH-AGHjDRQfBxWGMrtCu8yJcgsbG1b7KAzixsbPgj4-pugka7X--f25eYvkcrkGei8x3aepUc5C6S0JO2nASy0vnJG2DbA7jAdpZE-4zBlVntUexPc8DLdz7GAtHoJKczcvy6KSr9ak_TuUOVv83Ka1QdmQ6zuIt3u3WICe3wwr6P0NTcZdI_eGJhHO9vKe_yWOQy52oxILvcZbdXIGUb1akZ7VYjFUqP5qkjccQXjDViVm9pLGLAEVFoXulrzfAb2msPZYwtteKhzu6lPNeMw4sj343Q="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "usageMetadata": {
+        "candidatesTokenCount": 31,
+        "promptTokenCount": 3113,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 3113
+          }
+        ],
+        "thoughtsTokenCount": 237,
+        "totalTokenCount": 3381
+      },
+      "invocationId": "e-f237456d-5552-4762-b0c9-5d4143cc5291",
+      "author": "impact_fetcher",
+      "actions": {
+        "stateDelta": {},
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "longRunningToolIds": [],
+      "id": "10a89762-d3c4-4593-a1a0-4ea5b97e85a1",
+      "timestamp": 1776602804.2775006
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "functionResponse": {
+              "id": "adk-274381cb-d63f-474f-a6d2-7a9fe33e0bdd",
+              "name": "get_affected_shipments",
+              "response": {
+                "status": "success",
+                "data": {
+                  "shipments": [],
+                  "count": 0
+                }
+              }
+            }
+          }
+        ],
+        "role": "user"
+      },
+      "invocationId": "e-f237456d-5552-4762-b0c9-5d4143cc5291",
+      "author": "impact_fetcher",
+      "actions": {
+        "stateDelta": {
+          "cache:shipments:region:Bhiwandi DC": {
+            "shipments": [],
+            "count": 0
+          }
+        },
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "fce974c3-fc40-43eb-9ca4-b60e93663cac",
+      "timestamp": 1776602808.5680177
+    },
+    {
+      "modelVersion": "gemini-2.5-flash",
+      "content": {
+        "parts": [
+          {
+            "text": "### Exception Summary\n- Exception type: carrier_capacity_failure\n- Subtype: equipment_failure\n- Severity: HIGH\n- Scope: region: Bhiwandi DC, 0 shipments found, source: classification.key_facts\n\n### Affected Shipments\nNo shipments found for the specified scope.\n\n### Route & Hub Status\nNot available as no affected shipments were found to determine route IDs.\n\n### Financial Totals\nNot available as no affected shipments were found to calculate financial impact.\n\n### Notes\n- The initial query for affected shipments using `scope_type=\"region\"` and `scope_value=\"Bhiwandi DC\"` returned 0 shipments.\n- No broader scope was available for a retry.",
+            "thoughtSignature": "CvQKAQw51sfwbIwoJI1uMHqwPGsH8MP2NwYeJ3-f55gVSn0L5gCihJ8he076jhQ7xuBKp1IZND5WRisWs1knelFJqrUrSepAGGPzC8Y9KzbgN3b5BbsGjlf9tKXNMju0EPqofTpPKd0ECawYQhnQoZGx2ou0M-STMEePqokNBzEARpaOTt_mEBNXUlvNDcYenD7ePp9wO27xIX8B8bdJXHEoVgR7x2N8PPkMSQVa2vXs9DIW057Svhxp961jWwjlyAgU69FO_whlKuRaf-NSCmHI3CTHENV18fdSsC-b-0G8f3cSF35JE8-CHd85A26LNJAwrxip8f3yohR_7jXooPlZFAA324idRTYvt1su_IwyRqprCMn4ki3Wnerm9PiKnQSxq85tLjf2bm24aZENE863msU8jA1CETi08KDsCZk4e6HQB_KhrSZVvfkQCfZIrifEFz9VV_qGwo8tc4FLdaeWi8V5b0VjzEc_6VATrmJ3Ey4w9FHAXz_blOB_NUYbCEfzOX9IRSwzPCdmvoRUcamAKMp_QeDHBt5RhpiHqsoepNiNRH3sei8U5fNSxDmATrRY47s3Czexe0JMb9Tj1fixrdzFPrfBTdj6X9Vdsw7EXQUNez9RSzuzCk0asRVor5lyfzbWnhe5zLtfVGyrIOhCozT9U7k-7vj0wAOKxeZxo7a-X47qTA41OuFn5I5iF3d0hvIdTcciOoi_xgPwx2HO5E5r5xvTKXOrPEVfoky9mkmAQA4fXyH5p7H2xDM-ckaGSWQ80mVKW2JsM8ShMuEZC-_0jv8MB2ciYzxQ-NMsyEBBkaGnaKVdRaH4VyM8_Q3_sETZ87R-3oFHDjG3_cu5TQ_EEHinKSEnaNWr58mBTbzIgQ4Iz725vEzK_lKKVZOfPK_1ijKgMyuZABqmdZopCoyi-AIZCqocm6LKTIEbbJPI-QFTRwcexE1jQQ1Kz6ECs0jlHTtoRMOpJuxWtPMqR_PShhRRIhqyE8RpKFkbVLbGceH3LNu4jEoieDRE2DZSfDmLlfGTjkDWm9cKq6-aSsCvFvwSlyLa9E6Ir6GE1-TlK8KHhjdmRhSXD7-3dhX9_V691quB3tM4XOOwTehI1r9Zhdiy1pUEp4K5cFiT9713MHsm1iS4p236yCdw2yOKe4H-luKbgsOQsXo-xLI9y78Q6u3QaGWNwrXdM7VjuigTMGtiF9wgvE9kny_bVFuj4eYi5vkxBTLmaVb-9E0XAuwSxzmRRezvkWKvwVmmD_vi8s0HmVJa0vzfsZbGBIah6GwtdiovdL08r8N0WFaoCuNpbHitF3MD6J2dfbFqp2rl3gCUOtOzE7zxMx5xdWrnVe8PWzqEbd_PqsJASgnxuYmwxBagvgGvwnRP72lAzlGjx21wrKUnBd5nvkY1o5bwULHcciXTTN0i6eqtJfpyoLbRVM00UFMnAKdnGtzIqkD1cWtVQajkDigzUOu9xS0rT27O5Jd47rh1IC4vRrqIVpHxz-V4XsNVuLZs8EPzu6wg4aAJFEjhUYSB1Uqdw5Uh73KFhmJgqOIyhECsm9J_MulesrHVrWDOvQgDX0-DJlyp7_LFFeLB9l-2MIX_W-GlQfpcnCfZ7yTtKN0DXztkKKgQDJ-HxMx4jOlOkKOMrSKqlujlMjEy52oC90NFLchcb997QeH1h8SO-lfuJWSFjh0ToR-uAdJJuqRDLLmti8FUBddJ-oH1iG5NGyA643KMPtZ8ZY-m4mcRnJTvlXU9Csm69yJqRjh5DaUuJhzad1yp_UDuGgNqWa5sSwtZ0rBP10jpi2cidAKB1kuX8bd9SN0J7ZXiX8f1fuzllcb8kheQoQEABBdFp2r-sv3OO1nSoVLhdgoiAQw51sebsv7ZZvlZrXuI3NH4qczxXR6JfoHL6HBNhA5b1Q=="
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "usageMetadata": {
+        "candidatesTokenCount": 149,
+        "promptTokenCount": 3177,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 3177
+          }
+        ],
+        "thoughtsTokenCount": 336,
+        "totalTokenCount": 3662
+      },
+      "invocationId": "e-f237456d-5552-4762-b0c9-5d4143cc5291",
+      "author": "impact_fetcher",
+      "actions": {
+        "stateDelta": {
+          "raw_impact_data": "### Exception Summary\n- Exception type: carrier_capacity_failure\n- Subtype: equipment_failure\n- Severity: HIGH\n- Scope: region: Bhiwandi DC, 0 shipments found, source: classification.key_facts\n\n### Affected Shipments\nNo shipments found for the specified scope.\n\n### Route & Hub Status\nNot available as no affected shipments were found to determine route IDs.\n\n### Financial Totals\nNot available as no affected shipments were found to calculate financial impact.\n\n### Notes\n- The initial query for affected shipments using `scope_type=\"region\"` and `scope_value=\"Bhiwandi DC\"` returned 0 shipments.\n- No broader scope was available for a retry."
+        },
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "b061b011-5bb5-4bcd-9365-decaadf7c57c",
+      "timestamp": 1776602808.5811286
+    },
+    {
+      "modelVersion": "gemini-2.5-flash",
+      "content": {
+        "parts": [
+          {
+            "text": "{\"event_id\":\"N/A\",\"affected_shipments\":[],\"total_value_at_risk_inr\":0,\"total_penalty_exposure_inr\":0,\"estimated_churn_impact_inr\":0,\"critical_path_shipment_id\":null,\"recommended_priority_order\":[],\"priority_reasoning\":\"No shipments were found to be affected by this event, so no priority order can be established.\",\"has_reputation_risks\":false,\"reputation_risk_shipments\":[],\"total_financial_exposure_inr\":0,\"cascade_risk_summary\":\"No affected shipments were identified, therefore no cascade risk can be assessed.\",\"hub_congestion_risk\":null,\"estimated_delay_hours\":0,\"summary\":\"The carrier capacity failure due to equipment failure in the Bhiwandi DC region currently shows no impact on shipments. No affected shipments were found, resulting in zero financial exposure or operational delays.\"}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "usageMetadata": {
+        "candidatesTokenCount": 200,
+        "promptTokenCount": 1749,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 1749
+          }
+        ],
+        "thoughtsTokenCount": 647,
+        "totalTokenCount": 2596
+      },
+      "invocationId": "e-f237456d-5552-4762-b0c9-5d4143cc5291",
+      "author": "impact_formatter",
+      "actions": {
+        "stateDelta": {
+          "triage:impact": {
+            "event_id": "N/A",
+            "affected_shipments": [],
+            "total_value_at_risk_inr": 0,
+            "total_penalty_exposure_inr": 0,
+            "estimated_churn_impact_inr": 0,
+            "recommended_priority_order": [],
+            "priority_reasoning": "No shipments were found to be affected by this event, so no priority order can be established.",
+            "has_reputation_risks": false,
+            "reputation_risk_shipments": [],
+            "total_financial_exposure_inr": 0,
+            "cascade_risk_summary": "No affected shipments were identified, therefore no cascade risk can be assessed.",
+            "estimated_delay_hours": 0,
+            "summary": "The carrier capacity failure due to equipment failure in the Bhiwandi DC region currently shows no impact on shipments. No affected shipments were found, resulting in zero financial exposure or operational delays."
+          }
+        },
+        "artifactDelta": {},
+        "requestedAuthConfigs": {},
+        "requestedToolConfirmations": {}
+      },
+      "id": "1e156976-8d08-41a8-bcf0-d6984e4f15f3",
+      "timestamp": 1776602813.2288287
+    }
+  ],
+  "lastUpdateTime": 1776602813.2288287
+}

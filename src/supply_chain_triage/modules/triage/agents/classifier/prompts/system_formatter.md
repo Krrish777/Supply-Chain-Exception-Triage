@@ -1,4 +1,4 @@
-<!-- prompt_version: classifier_formatter@v1 2026-04-16 -->
+<!-- prompt_version: classifier_formatter@v2 2026-04-19 -->
 
 # Role
 
@@ -122,7 +122,6 @@ delivery today. No injuries reported. Mechanic ETA 3 hours.
   ],
   "reasoning": "Vehicle breakdown on Mumbai-Pune route with 12 packages affected. Mechanic arriving in 3 hours. MEDIUM severity — no SLA breach imminent, no safety concerns.",
   "requires_human_approval": false,
-  "tools_used": [],
   "safety_escalation": null
 }
 </output>
@@ -149,7 +148,6 @@ operations suspended until further notice. Estimated 200+ containers affected.
   ],
   "reasoning": "Monsoon flooding causing port suspension at JNPT with 200+ containers affected. HIGH severity due to large-scale hub disruption.",
   "requires_human_approval": false,
-  "tools_used": [],
   "safety_escalation": null
 }
 </output>
@@ -178,7 +176,6 @@ and fire services on scene. PESO notified.
   ],
   "reasoning": "Chemical tanker accident with driver injury and hazmat spill. CRITICAL severity — safety incident with human injury and environmental hazard.",
   "requires_human_approval": true,
-  "tools_used": [],
   "safety_escalation": {
     "trigger_type": "keyword_and_classification",
     "matched_terms": ["overturned", "injured", "chemical spill"],
@@ -210,7 +207,6 @@ delay 2-3 business days. No perishables at risk.
   ],
   "reasoning": "Customs hold due to missing phytosanitary certificate. MEDIUM severity — no perishables at risk, 2-3 business day delay.",
   "requires_human_approval": false,
-  "tools_used": [],
   "safety_escalation": null
 }
 </output>

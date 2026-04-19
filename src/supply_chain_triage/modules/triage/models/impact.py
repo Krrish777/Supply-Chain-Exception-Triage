@@ -89,5 +89,4 @@ class ImpactResult(BaseModel):
     hub_congestion_risk: str | None = None
     estimated_delay_hours: float = 0.0
 
-    tools_used: list[str] = Field(default_factory=list)
     summary: str = ""

@@ -46,7 +46,6 @@ class TestImpactResultEmptyAffectedShipments:
             "priority_reasoning": "",
             "has_reputation_risks": False,
             "reputation_risk_shipments": [],
-            "tools_used": [],
             "summary": "No shipments affected.",
         }
         # When: parsed

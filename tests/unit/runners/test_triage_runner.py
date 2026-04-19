@@ -40,7 +40,6 @@ def _classification_json(
             "key_facts": [],
             "reasoning": "fixture reasoning",
             "requires_human_approval": requires_human_approval,
-            "tools_used": [],
             "safety_escalation": None,
         }
     )
@@ -63,7 +62,6 @@ def _impact_json(*, event_id: str = "EVT-TEST") -> str:
             "cascade_risk_summary": "",
             "hub_congestion_risk": None,
             "estimated_delay_hours": 0.0,
-            "tools_used": [],
             "summary": "",
         }
     )

@@ -1,0 +1,57 @@
+[
+  {
+    "event_id": "EXC-2026-0001",
+    "timestamp": "2026-04-16T06:30:00+00:00",
+    "source_channel": "manual_entry",
+    "sender": {"name": "Dispatch Control", "role": "operations"},
+    "raw_content": "BlueDart truck BD-MH12-4521 broke down on the Mumbai-Pune Expressway near Lonavala at 06:30 IST. Driver reports engine failure. 12 packages onboard for delivery today including 3 high-value B2B shipments for MegaMart. Mechanic ETA 3 hours. No injuries reported.",
+    "original_language": null,
+    "english_translation": null,
+    "media_urls": [],
+    "metadata": {"company_id": "swiftlogix-001"}
+  },
+  {
+    "event_id": "EXC-2026-0002",
+    "timestamp": "2026-04-16T08:00:00+00:00",
+    "source_channel": "manual_entry",
+    "sender": {"name": "Port Liaison", "role": "operations"},
+    "raw_content": "URGENT: Heavy monsoon flooding in Nhava Sheva port area since last night. Multiple container yards waterlogged. Access roads to JNPT blocked. Port operations suspended until further notice. Estimated 200+ containers affected across all operators. Water level still rising. Met department predicts continued heavy rain for 48 hours.",
+    "original_language": null,
+    "english_translation": null,
+    "media_urls": [],
+    "metadata": {"company_id": "swiftlogix-001"}
+  },
+  {
+    "event_id": "EXC-2026-0003",
+    "timestamp": "2026-04-16T10:15:00+00:00",
+    "source_channel": "manual_entry",
+    "sender": {"name": "Rajesh Kumar", "role": "VP Operations, MegaMart India"},
+    "raw_content": "FINAL WARNING - This is our third escalation this month regarding delivery delays. Order #MM-2026-8834 was promised delivery by April 14th for our Diwali campaign pre-stock. It's April 16th and we still don't have the shipment. Our contract specifies Rs 50,000/day penalty for delays beyond 48 hours. We are seriously reconsidering our logistics partnership. Please resolve immediately or we will initiate contract termination proceedings.",
+    "original_language": null,
+    "english_translation": null,
+    "media_urls": [],
+    "metadata": {"company_id": "swiftlogix-001"}
+  },
+  {
+    "event_id": "EXC-2026-0004",
+    "timestamp": "2026-04-16T14:20:00+00:00",
+    "source_channel": "manual_entry",
+    "sender": {"name": "Highway Patrol Desk", "role": "emergency"},
+    "raw_content": "EMERGENCY: Chemical tanker overturned on NH8 near Vapi, Gujarat at 14:20 IST. Driver injured and admitted to local hospital. Chemical spill reported on highway — substance identified as industrial solvent. NHAI has closed a 2km stretch. Our 3 trucks are stuck behind the blockade with perishable cargo. Police and fire services on scene. PESO has been notified. Estimated road clearance: 6-8 hours minimum.",
+    "original_language": null,
+    "english_translation": null,
+    "media_urls": [],
+    "metadata": {"company_id": "swiftlogix-001"}
+  },
+  {
+    "event_id": "EXC-2026-0005",
+    "timestamp": "2026-04-16T11:45:00+00:00",
+    "source_channel": "manual_entry",
+    "sender": {"name": "Customs Broker", "role": "compliance"},
+    "raw_content": "Customs hold at Chennai port for shipment CHN-2026-442. Missing phytosanitary certificate for agricultural goods consignment. FSSAI inspection has been triggered. Expected clearance delay 2-3 business days. No perishables in this particular shipment. Documentation team working on obtaining the certificate from the exporter.",
+    "original_language": null,
+    "english_translation": null,
+    "media_urls": [],
+    "metadata": {"company_id": "swiftlogix-001"}
+  }
+]

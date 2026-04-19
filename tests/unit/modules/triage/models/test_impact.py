@@ -153,10 +153,6 @@ class TestImpactResultExistingFields:
         result = ImpactResult.model_validate(_impact_result())
         assert result.recommended_priority_order == []
 
-    def test_tools_used_defaults_empty(self) -> None:
-        result = ImpactResult.model_validate(_impact_result())
-        assert result.tools_used == []
-
     def test_affected_shipments_roundtrip(self) -> None:
         shipment_data = _shipment()
         result = ImpactResult.model_validate(

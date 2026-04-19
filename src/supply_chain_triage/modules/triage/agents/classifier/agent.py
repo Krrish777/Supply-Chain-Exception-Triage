@@ -200,7 +200,10 @@ def create_classifier() -> SequentialAgent:
     fetcher = LlmAgent(
         name="classifier_fetcher",
         model=_MODEL,
-        description="Retrieves exception event and company context from Firestore.",
+        description=(
+            "Compiles a briefing from hydrated exception + company state. "
+            "Tools available as a fallback only when state is empty."
+        ),
         instruction=_FETCHER_INSTRUCTION,
         tools=[get_exception_event, get_company_profile],
         output_key="raw_exception_data",

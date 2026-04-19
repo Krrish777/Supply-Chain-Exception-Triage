@@ -1,0 +1,17 @@
+{
+  "company_id": "swiftlogix-001",
+  "name": "SwiftLogix Pvt. Ltd.",
+  "profile_summary": "Small 3PL operator based in Mumbai, serving the Mumbai-Gujarat-Chennai corridor. Specializes in FMCG and pharmaceutical distribution.",
+  "num_trucks": 15,
+  "num_employees": 42,
+  "regions_of_operation": ["Mumbai", "Pune", "Gujarat", "Chennai", "Bengaluru"],
+  "carriers": ["BlueDart", "Delhivery", "DTDC", "Gati"],
+  "customer_portfolio": {
+    "d2c_percentage": 0.30,
+    "b2b_percentage": 0.45,
+    "b2b_enterprise_percentage": 0.25,
+    "top_customers": ["MegaMart India", "PharmaCo", "FreshDaily"]
+  },
+  "avg_daily_revenue_inr": 800000,
+  "active": true
+}

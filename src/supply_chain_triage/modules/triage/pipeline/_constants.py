@@ -74,7 +74,6 @@ _SAFETY_PLACEHOLDER_BASE: dict[str, Any] = {
     "key_facts": [{"key": "trigger", "value": "safety_keyword_match"}],
     "reasoning": "Rule B keyword detection — short-circuited before classifier.",
     "requires_human_approval": True,
-    "tools_used": [],
     "safety_escalation": {
         "trigger_type": "keyword_detection",
         "matched_terms": [],  # populated at call-time

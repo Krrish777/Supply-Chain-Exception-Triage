@@ -62,15 +62,20 @@ CurrentUser = Annotated[FirebaseUser, Depends(get_current_user)]
 @router.post("/")
 async def triage_exception(
     *,
-    current_user: CurrentUser,  # noqa: ARG001 — Day 5 wires correlation/audit_event
+    current_user: CurrentUser,
     payload: TriagePayload,
 ) -> StreamingResponse:
     """Stream SSE frames for a single triage run (POST /api/v1/triage)."""
     event_id = (payload.event_id or "").strip() or f"adhoc-{uuid4().hex[:16]}"
     raw_text = payload.raw_text or ""
+    company_id = current_user.company_id
 
     async def _framed() -> AsyncIterator[bytes]:
-        async for frame in _triage_event_stream(event_id=event_id, raw_text=raw_text):
+        async for frame in _triage_event_stream(
+            event_id=event_id,
+            raw_text=raw_text,
+            company_id=company_id,
+        ):
             event_type = frame["event"]
             data_json = json.dumps(frame["data"], default=str)
             yield f"event: {event_type}\ndata: {data_json}\n\n".encode()

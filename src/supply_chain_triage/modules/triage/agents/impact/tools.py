@@ -2,6 +2,10 @@
 
 Per ``.claude/rules/tools.md``: async for I/O, return
 ``{"status": "success"|"error", ...}``, per-turn cache in state.
+
+``get_exception_event`` is re-exported from
+``supply_chain_triage.modules.triage.tools.lookup`` so the impact agent and
+classifier agent share a single implementation.
 """
 
 from __future__ import annotations
@@ -12,12 +16,22 @@ from google.adk.tools import ToolContext  # type: ignore[attr-defined]  # noqa: 
 from google.cloud.firestore_v1.base_query import FieldFilter
 
 from supply_chain_triage.core.config import get_firestore_client
+from supply_chain_triage.modules.triage.tools.lookup import get_exception_event
 from supply_chain_triage.utils.logging import get_logger, log_firestore_op
 
 logger = get_logger(__name__)
 
-# Firestore collection names
-_EXCEPTIONS_COLLECTION = "exceptions"
+__all__ = [
+    "calculate_financial_impact",
+    "get_affected_shipments",
+    "get_customer_profile",
+    "get_exception_event",
+    "get_route_and_hub_status",
+    "get_shipment_details",
+]
+
+# Firestore collection names (impact-specific; exceptions/companies live in
+# tools/lookup.py).
 _SHIPMENTS_COLLECTION = "shipments"
 _CUSTOMERS_COLLECTION = "customers"
 _ROUTES_COLLECTION = "routes"
@@ -27,64 +41,6 @@ _HUBS_COLLECTION = "hubs"
 _REROUTING_COST_PER_KM_INR = 15
 _HOLDING_COST_PER_DAY_PER_CONTAINER_INR = 500
 _OPPORTUNITY_COST_LTV_FACTOR = 0.10
-
-
-async def get_exception_event(
-    event_id: str,
-    tool_context: ToolContext,
-) -> dict[str, Any]:
-    """Retrieve an exception event by ID from Firestore.
-
-    Use this tool when the user provides an event_id and no classification
-    is available in session state. The raw_content from the exception can
-    be used to determine which shipments are affected.
-
-    Args:
-        event_id: Firestore document ID for the exception event.
-        tool_context: ADK tool context (provides state + actions).
-
-    Returns:
-        ``{"status": "success", "data": {...}}`` on hit,
-        ``{"status": "error", "error_message": str}`` on miss or failure.
-    """
-    cache_key = f"cache:exception:{event_id}"
-    if cached := tool_context.state.get(cache_key):
-        return {"status": "success", "data": cached}
-
-    try:
-        db = get_firestore_client()
-        doc = await db.collection(_EXCEPTIONS_COLLECTION).document(event_id).get()
-
-        if not doc.exists:
-            return {
-                "status": "error",
-                "error_message": f"Exception event {event_id!r} not found",
-            }
-
-        raw = doc.to_dict() or {}
-        raw["event_id"] = doc.id
-
-        log_firestore_op(
-            op="get",
-            collection=_EXCEPTIONS_COLLECTION,
-            doc_count=1,
-            duration_ms=0,
-        )
-
-        tool_context.state[cache_key] = raw
-        return {"status": "success", "data": raw}
-
-    except Exception as exc:
-        logger.exception(
-            "tool_failed",
-            tool_name="get_exception_event",
-            error_class=type(exc).__name__,
-            error_detail=str(exc),
-        )
-        return {
-            "status": "error",
-            "error_message": f"Failed to fetch exception: {type(exc).__name__}: {exc}",
-        }
 
 
 async def get_affected_shipments(

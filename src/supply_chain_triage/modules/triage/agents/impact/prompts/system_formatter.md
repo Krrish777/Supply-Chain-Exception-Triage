@@ -93,7 +93,6 @@ Return a valid ImpactResult matching the output schema. Include:
 - `estimated_delay_hours`: your best estimate of total delay
 - `has_reputation_risks`: true if any shipment has reputation risk
 - `reputation_risk_shipments`: IDs of shipments with reputation risk
-- `tools_used`: list of tools called by the fetcher
 - `summary`: 2-3 sentence executive summary for the Coordinator
 
 <few_shot_example>

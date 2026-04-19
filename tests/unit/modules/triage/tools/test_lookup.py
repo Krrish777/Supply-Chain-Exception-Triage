@@ -1,4 +1,4 @@
-"""Unit tests for classifier-private tools (get_exception_event, get_company_profile)."""
+"""Unit tests for shared lookup tools (get_exception_event, get_company_profile)."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ os.environ.setdefault("GCP_PROJECT_ID", "sct-test")
 os.environ.setdefault("FIREBASE_PROJECT_ID", "sct-test")
 os.environ.setdefault("SCT_DISABLE_SECRET_MANAGER", "1")
 
-from supply_chain_triage.modules.triage.agents.classifier.tools import (
+from supply_chain_triage.modules.triage.tools.lookup import (
     get_company_profile,
     get_exception_event,
 )
@@ -61,6 +61,8 @@ SAMPLE_COMPANY = {
     "active": True,
 }
 
+_PATCH_TARGET = "supply_chain_triage.modules.triage.tools.lookup.get_firestore_client"
+
 
 def _mock_firestore_db(doc_mock: AsyncMock) -> MagicMock:
     """Build a mock Firestore client with sync collection/document, async get."""
@@ -74,9 +76,7 @@ def _mock_firestore_db(doc_mock: AsyncMock) -> MagicMock:
 class TestGetExceptionEvent:
     @pytest.fixture(autouse=True)
     def _patch_firestore(self):
-        with patch(
-            "supply_chain_triage.modules.triage.agents.classifier.tools.get_firestore_client"
-        ) as mock_client:
+        with patch(_PATCH_TARGET) as mock_client:
             self.mock_client = mock_client
             yield
 
@@ -139,9 +139,7 @@ class TestGetExceptionEvent:
 class TestGetCompanyProfile:
     @pytest.fixture(autouse=True)
     def _patch_firestore(self):
-        with patch(
-            "supply_chain_triage.modules.triage.agents.classifier.tools.get_firestore_client"
-        ) as mock_client:
+        with patch(_PATCH_TARGET) as mock_client:
             self.mock_client = mock_client
             yield
 

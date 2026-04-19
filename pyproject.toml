@@ -175,8 +175,9 @@ max-locals = 15
 # hurt readability and the test shape (6 tests × 6 branches).
 "src/supply_chain_triage/middleware/firebase_auth.py" = ["PLR0911"]
 # scripts/ — server-admin tooling (not request-path code). set_custom_claims.py
-# uses firebase_admin to seed custom claims on test users; seed_firestore.py may
-# use google.cloud.firestore in Sprint 2 for seeding. Allowed for admin-only use.
+# uses firebase_admin to seed custom claims on test users; seed_emulator.py /
+# seed_classifier_demo.py / seed_impact_demo.py use google.cloud.firestore
+# directly against the emulator or prod. Allowed for admin-only use.
 # Scripts print to stdout for operator feedback — T201/T203 allowed here only.
 # See .claude/rules/imports.md §"scripts/ allowlist".
 "scripts/**" = ["TID251", "T201", "T203"]
