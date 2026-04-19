@@ -32,6 +32,8 @@ from supply_chain_triage.modules.triage.models.impact import ImpactResult
 from supply_chain_triage.utils.logging import log_agent_invocation
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from google.adk.agents.callback_context import CallbackContext
     from google.adk.models.llm_request import LlmRequest
     from google.adk.models.llm_response import LlmResponse
@@ -232,13 +234,42 @@ def _hard_override_labels(shipment: dict[str, Any]) -> list[str]:
     return labels
 
 
+def _make_combined_before(
+    rule_check: Callable[[CallbackContext], genai_types.Content | None],
+) -> Callable[[CallbackContext], genai_types.Content | None]:
+    """Compose an upstream rule check with the timing stamp.
+
+    The rule check fires first. If it returns ``Content``, the agent will be
+    skipped by ADK, so we also skip the timing stamp (no point timing an agent
+    that won't run). If the rule check returns ``None``, we stamp the start
+    time for duration logging and let the agent proceed.
+    """
+
+    def _combined(callback_context: CallbackContext) -> genai_types.Content | None:
+        result = rule_check(callback_context)
+        if result is not None:
+            return result
+        _before_agent(callback_context)
+        return None
+
+    return _combined
+
+
 # ---------------------------------------------------------------------------
 # Agent factory
 # ---------------------------------------------------------------------------
 
 
-def create_impact() -> SequentialAgent:
+def create_impact(
+    before_agent_callback: Callable[[CallbackContext], genai_types.Content | None] | None = None,
+) -> SequentialAgent:
     """Create the impact SequentialAgent (fetcher + formatter).
+
+    Args:
+        before_agent_callback: Optional upstream callback (e.g., Rule C/F gate).
+            When provided, it fires before the timing stamp and can short-circuit
+            the agent by returning ``Content``. When ``None``, only the built-in
+            timing stamp runs.
 
     Returns:
         SequentialAgent wrapping fetcher and formatter sub-agents.
@@ -288,6 +319,12 @@ def create_impact() -> SequentialAgent:
         after_model_callback=_after_model,
     )
 
+    pipeline_before = (
+        _make_combined_before(before_agent_callback)
+        if before_agent_callback is not None
+        else _before_agent
+    )
+
     return SequentialAgent(
         name=_AGENT_NAME,
         description=(
@@ -296,7 +333,7 @@ def create_impact() -> SequentialAgent:
             "data, formatter produces structured ImpactResult with priority ordering."
         ),
         sub_agents=[fetcher, formatter],
-        before_agent_callback=_before_agent,
+        before_agent_callback=pipeline_before,
         after_agent_callback=_after_agent,
     )
 
