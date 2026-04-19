@@ -13,6 +13,7 @@ from supply_chain_triage.middleware.audit_log import AuditLogMiddleware
 from supply_chain_triage.middleware.cors import add_cors_middleware
 from supply_chain_triage.middleware.firebase_auth import FirebaseAuthMiddleware
 from supply_chain_triage.middleware.input_sanitization import InputSanitizationMiddleware
+from supply_chain_triage.runners.routes.triage import router as triage_router
 
 # Paths that bypass Firebase Auth. Keep this list short + explicit.
 _PUBLIC_PATHS: frozenset[str] = frozenset(
@@ -43,6 +44,8 @@ def create_app() -> FastAPI:
     app.add_middleware(InputSanitizationMiddleware)
     app.add_middleware(FirebaseAuthMiddleware, public_paths=_PUBLIC_PATHS)
     app.add_middleware(AuditLogMiddleware)  # OUTERMOST — must stay last.
+
+    app.include_router(triage_router)
 
     @app.get("/health", tags=["ops"])
     def health() -> dict[str, str]:

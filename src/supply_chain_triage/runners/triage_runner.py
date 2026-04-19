@@ -1,19 +1,22 @@
-"""Triage runner — blocking entry point for the full triage pipeline.
+"""Triage runner — blocking + streaming entry points for the full triage pipeline.
 
 Seeds ``triage:event_id`` + ``triage:event_raw_text`` into session state before
 dispatch (so Rule B's keyword scan fires with state populated), drains
 ``Runner.run_async`` events, then assembles a ``TriageResult`` from the final
 session state.
 
-Day 3 scope: blocking path only. The SSE streaming runner (Day 4) reuses the
-same pipeline factory but yields events progressively.
+Day 3 delivered ``run_triage`` (blocking). Day 4 adds ``_triage_event_stream``
+which reuses the same pipeline factory but yields SSE-friendly frame dicts
+progressively. Both entry points share ``_assemble_triage_result`` and the
+parse helpers below.
 """
 
 from __future__ import annotations
 
 import json
 import time
-from typing import TYPE_CHECKING
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
 
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
@@ -31,7 +34,9 @@ from supply_chain_triage.modules.triage.pipeline import create_triage_pipeline
 from supply_chain_triage.utils.logging import get_logger, log_agent_invocation
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import AsyncIterator, Iterator, Mapping
+
+    from google.adk.events import Event
 
 logger = get_logger(__name__)
 
@@ -82,11 +87,7 @@ async def run_triage(*, event_id: str, raw_text: str) -> TriageResult:
     ):
         pass
 
-    updated_session = await session_service.get_session(
-        app_name=_APP_NAME, user_id=_USER_ID, session_id=session.id
-    )
-    state: Mapping[str, object] = updated_session.state if updated_session else {}
-
+    state = await _get_session_state(session_service, session.id)
     duration_ms = (time.perf_counter_ns() - start_ns) // _NS_TO_MS
     result = _assemble_triage_result(event_id=event_id, state=state, duration_ms=int(duration_ms))
 
@@ -102,6 +103,159 @@ async def run_triage(*, event_id: str, raw_text: str) -> TriageResult:
     )
 
     return result
+
+
+# ---------------------------------------------------------------------------
+# Day 4 — SSE streaming runner
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class _StreamTracking:
+    """Per-stream bookkeeping for frame-emission idempotence."""
+
+    started_agents: set[str] = field(default_factory=set)
+    emitted_partial_classification: bool = False
+
+
+async def _triage_event_stream(*, event_id: str, raw_text: str) -> AsyncIterator[dict[str, Any]]:
+    r"""Stream the triage pipeline as SSE-friendly frame dicts.
+
+    Reuses ``create_triage_pipeline()`` (same pipeline as ``run_triage``) and
+    translates ADK events into a stable 7-type frame contract decoupled from
+    ADK's internal ``Event`` shape (see ``.claude/rules/agents.md`` §10).
+
+    Frame contract (per Sprint 3 PRD §2.2):
+        ``agent_started`` / ``tool_invoked`` / ``agent_completed`` /
+        ``partial_result`` / ``complete`` / ``error`` / ``done``.
+
+    Args:
+        event_id: Exception event ID (Firestore doc ID, or synthesized ad-hoc).
+        raw_text: Raw text of the exception (body of Rule B's keyword scan).
+
+    Yields:
+        ``{"event": <type>, "data": <payload dict>}``. The route layer wraps
+        each dict with SSE framing (``event: X\ndata: <json>\n\n``).
+
+    Never 500s: on any exception an ``error`` frame is emitted before ``done``.
+    ``asyncio.CancelledError`` propagates (consumer is gone — ``done`` is not
+    emitted after cancel).
+    """
+    session_service = InMemorySessionService()  # type: ignore[no-untyped-call]
+    pipeline = create_triage_pipeline()
+    runner = Runner(agent=pipeline, app_name=_APP_NAME, session_service=session_service)
+    session = await session_service.create_session(
+        app_name=_APP_NAME,
+        user_id=_USER_ID,
+        state={
+            "triage:event_id": event_id,
+            "triage:event_raw_text": raw_text,
+        },
+    )
+    trigger = genai_types.Content(
+        role="user",
+        parts=[genai_types.Part.from_text(text=f"Triage exception {event_id}")],
+    )
+
+    tracking = _StreamTracking()
+    start_ns = time.perf_counter_ns()
+
+    try:
+        async for event in runner.run_async(
+            user_id=_USER_ID, session_id=session.id, new_message=trigger
+        ):
+            state = await _get_session_state(session_service, session.id)
+            for frame in _frames_for_event(event, state, tracking):
+                yield frame
+
+        state = await _get_session_state(session_service, session.id)
+        yield _make_complete_frame(event_id=event_id, state=state, start_ns=start_ns)
+    except Exception as exc:  # SSE stream must never 500 — always terminate with frames
+        yield {
+            "event": "error",
+            "data": {"code": exc.__class__.__name__, "message": str(exc)[:200]},
+        }
+
+    yield {"event": "done", "data": {}}
+
+
+def _frames_for_event(
+    event: Event,
+    state: Mapping[str, object],
+    tracking: _StreamTracking,
+) -> Iterator[dict[str, Any]]:
+    """Translate one ADK event into zero-or-more SSE frame dicts.
+
+    Emits ``agent_started`` on first appearance of an author, one
+    ``tool_invoked`` per function call, ``agent_completed`` on the final
+    event of each author's turn, and ``partial_result`` the first time
+    ``triage:classification`` appears in state.
+    """
+    author = event.author or _PIPELINE_AGENT_NAME
+
+    if author not in tracking.started_agents:
+        tracking.started_agents.add(author)
+        yield {"event": "agent_started", "data": {"agent_name": author}}
+
+    for fn_call in event.get_function_calls() or []:
+        yield {
+            "event": "tool_invoked",
+            "data": {"tool_name": fn_call.name, "agent_name": author},
+        }
+
+    if event.is_final_response():
+        status = "escalated" if state.get("triage:rule_b_applied") else "ok"
+        yield {
+            "event": "agent_completed",
+            "data": {"agent_name": author, "status": status},
+        }
+
+    if not tracking.emitted_partial_classification:
+        raw = state.get("triage:classification")
+        if isinstance(raw, str) and raw:
+            try:
+                value: Any = json.loads(raw)
+            except json.JSONDecodeError:
+                value = None
+            tracking.emitted_partial_classification = True
+            yield {
+                "event": "partial_result",
+                "data": {"key": "classification", "value": value},
+            }
+
+
+def _make_complete_frame(
+    *, event_id: str, state: Mapping[str, object], start_ns: int
+) -> dict[str, Any]:
+    """Assemble the terminal ``complete`` frame + log invocation lifecycle."""
+    duration_ms = (time.perf_counter_ns() - start_ns) // _NS_TO_MS
+    result = _assemble_triage_result(event_id=event_id, state=state, duration_ms=int(duration_ms))
+    log_agent_invocation(
+        agent_name=_PIPELINE_AGENT_NAME,
+        duration_ms=float(duration_ms),
+        status=result.status.value,
+        event_id=event_id,
+        error_count=len(result.errors),
+    )
+    return {
+        "event": "complete",
+        "data": {"triage_result": result.model_dump(mode="json")},
+    }
+
+
+async def _get_session_state(
+    session_service: InMemorySessionService, session_id: str
+) -> Mapping[str, object]:
+    """Fetch the current session state, or an empty mapping if the session vanished."""
+    session = await session_service.get_session(
+        app_name=_APP_NAME, user_id=_USER_ID, session_id=session_id
+    )
+    return session.state if session else {}
+
+
+# ---------------------------------------------------------------------------
+# Shared assembly helpers
+# ---------------------------------------------------------------------------
 
 
 def _assemble_triage_result(

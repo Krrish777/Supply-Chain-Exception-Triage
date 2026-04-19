@@ -53,7 +53,7 @@ Dev diary — one entry per day during the build session. Fill as we go.
 
 ---
 
-## Day 4 — 2026-04-22 (planned)
+## Day 4 — 2026-04-20 (actual — pulled in two days from plan)
 
 **Planned:**
 - `runners/triage_runner.py` streaming path (`_triage_event_stream`)
@@ -61,7 +61,47 @@ Dev diary — one entry per day during the build session. Fill as we go.
 - `tests/integration/test_triage_sse.py` (I-8 … I-11)
 - Atomic commit
 
-**Actuals:** (to be filled)
+**Actuals:**
+- `runners/triage_runner.py` extended with `_triage_event_stream(event_id, raw_text)
+  -> AsyncIterator[dict[str, Any]]`, shared `_assemble_triage_result` + parse helpers
+  with the Day 3 blocking path. Frame contract (7 types per PRD §2.2): `agent_started` /
+  `tool_invoked` / `agent_completed` / `partial_result` / `complete` / `error` / `done`.
+  Translation helper `_frames_for_event` converts ADK Event shape into our stable contract
+  (don't leak ADK internals per `.claude/rules/agents.md` §10).
+- `runners/routes/triage.py` (NEW) with `APIRouter(prefix="/api/v1/triage")` and
+  `POST /` returning `StreamingResponse(media_type="text/event-stream")` with
+  `X-Accel-Buffering: no` (Cloud Run footgun). Auth via `Depends(get_current_user)`
+  reading `request.state` set by `FirebaseAuthMiddleware` — gives dep-override seam for tests.
+- `modules/triage/models/api_envelopes.py` gained `TriagePayload(event_id | raw_text)`
+  with `model_validator(mode="after")` requiring at least one non-whitespace field
+  (+ `extra="forbid"` per `.claude/rules/models.md` §9).
+- `main.py` now `app.include_router(triage_router)` after the middleware stack.
+- `tests/integration/test_triage_sse.py` (NEW): I-11 (4 variants: empty, both empty,
+  whitespace, extra field), I-9 (Rule B short-circuit via `raw_text`, no Gemini),
+  I-10 (client disconnect mid-stream), I-8 (happy path; Gemini-gated, skipped without key).
+- Verification: ruff / mypy / lint-imports clean; interrogate 94.3%; pytest
+  `216 passed, 5 deselected` (210 unit + 6 new SSE integration).
+
+**Deviations:**
+- `sse-starlette` is not on the project deps path → fell back to plain
+  `StreamingResponse` with explicit SSE headers (matches plan §2 fallback). No
+  runtime cost; Cloud Run behaviour identical with `X-Accel-Buffering: no`.
+- `_triage_event_stream` terminates the stream with a bare `yield done` after the
+  `try/except Exception` (not inside `finally:`) — yielding from `finally` after a
+  `GeneratorExit` (raised by `aclose()`) raises `RuntimeError`. With the current
+  shape, `CancelledError` propagates up, `done` is skipped (consumer is gone anyway).
+- I-10 test is minimal — asserts the client can close mid-stream without the
+  server-side coroutine raising into the test body. Deeper "server cleanup observed"
+  assertions deferred to Day 5 when `audit_event` / logging hooks provide a signal.
+- `audit_event` NOT wired from the route yet — stays at Day 5 per plan footgun #6
+  (correlation_id middleware still pending).
+
+**Open for Day 5:**
+- Add `audit_event` emissions in the route handler (correlation_id + user_id + company_id
+  from `CurrentUser`).
+- slowapi rate limit `@limiter.limit("10/minute")` on the triage route.
+- `tenacity` retry on Impact fetchers (tool-level, not whole agent).
+- OTel spans over the SSE stream. No refactor of Day 4 code expected.
 
 ---
 
